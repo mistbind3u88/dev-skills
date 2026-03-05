@@ -29,10 +29,7 @@ git diff --stat main..HEAD
 
 # draft で作成
 gh pr create --draft --title "<タイトル>" --body "$(cat <<'EOF'
-## Summary
-<変更の要約を箇条書き>
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+<TEMPLATE.md のスタイルに従って概要欄を作成>
 EOF
 )"
 ```
@@ -83,3 +80,4 @@ EOF
 - PR は常に draft で作成する
 - 既存の概要欄が空でない場合、必ず既存の内容を読み込んでから更新する
 - ユーザーが明示的に全面書き換えを指示しない限り、既存の構造を維持する
+- PR 概要欄のスタイルは同ディレクトリの `TEMPLATE.md` に従う
