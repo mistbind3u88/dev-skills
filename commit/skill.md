@@ -1,7 +1,7 @@
 ---
 name: commit
 description: 変更をコミットする。変更が大きい場合はレイヤ構成に応じて段階的にコミットし、fixupやamendも適切に使い分ける。
-allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git push:*) Bash(gh pr view:*) Bash(gh pr create:*) Bash(gh pr edit:*)
+allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(git branch:*) Bash(GIT_SEQUENCE_EDITOR=:*) Bash(make:*)
 ---
 
 # commit スキル
@@ -127,40 +127,6 @@ git log --oneline -3
 git status -s
 ```
 
-### 5. push 時の PR 管理
-
-ユーザーから push を指示された場合、push 後に PR の状態を確認・管理する。
-
-#### PR が存在しない場合 — 新規作成
-
-```bash
-gh pr create --draft --title "<conventional commits 形式のタイトル>" --body "$(cat <<'EOF'
-## Summary
-<変更の要約を箇条書き>
-
-## Test plan
-<テスト方針>
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
-#### PR が既に存在する場合 — 概要欄を更新
-
-既存の概要欄を必ず読み込んでから、新しいコミットの内容を反映する。白紙から書き直さない。
-
-```bash
-# 既存の概要欄を取得
-gh pr view --json body --jq .body
-
-# 更新
-gh pr edit --body "$(cat <<'EOF'
-<既存の内容をベースに更新>
-EOF
-)"
-```
-
 ## rebase 時のバックアップ
 
 main の取り込みなど差分が大きくなる rebase や、結果の同一性を担保する必要がある rebase を行う前に、バックアップブランチを作成する。
@@ -179,3 +145,4 @@ fixup の autosquash のみの場合はバックアップ不要。
 - fixup が全て終わったら autosquash し、コミットメッセージの見直しと品質チェック（lint・build・test）を行う
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
+- コミット後の PR 作成・更新は gh-edit スキル、push は push スキルに委ねる
