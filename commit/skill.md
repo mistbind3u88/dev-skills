@@ -49,16 +49,49 @@ git log --oneline main..HEAD
 git commit --fixup=<対象コミットのSHA>
 ```
 
+あるコミットに対する fixup が全て終わったら autosquash する:
+
+1. autosquash を実行する
+3. squash 後のコミットメッセージが全変更を適切に反映しているか見直し、必要なら `git commit --amend` で修正する
+4. lint・build・test を実行して壊れていないことを確認する
+
+```bash
+# autosquash 実行
+GIT_SEQUENCE_EDITOR=: git rebase --autosquash main
+
+# squash 後のコミットメッセージを確認・見直し
+git log --oneline main..HEAD
+git show --stat <squash されたコミット>
+# 必要なら git commit --amend で修正
+
+# 品質チェック
+make lint
+```
+
 #### C. amend（直前のコミットへの修正）
 
 直前のコミットの変更内容に対する修正の場合:
 
-```bash
-git add <修正ファイル>
-git commit --amend --no-edit
-```
+1. amend 後のコミットに含まれる全変更を把握する（直前コミットの内容 + 今回の変更）
+2. 全変更を踏まえて、コミットメッセージが適切か判断する
+3. メッセージ変更が不要な場合は `--no-edit`、必要な場合は新しいメッセージを指定する
 
-コミットメッセージも変更する場合は `--no-edit` を外す。
+```bash
+# amend 後の全体像を確認
+git log -1 --stat HEAD
+git diff --staged --stat
+
+# メッセージ変更不要の場合
+git commit --amend --no-edit
+
+# メッセージも更新する場合
+git commit --amend -m "$(cat <<'EOF'
+<type>: <全変更を反映した説明>
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+EOF
+)"
+```
 
 ### 3. コミットメッセージを作成する
 
@@ -128,10 +161,21 @@ EOF
 )"
 ```
 
+## rebase 時のバックアップ
+
+main の取り込みなど差分が大きくなる rebase や、結果の同一性を担保する必要がある rebase を行う前に、バックアップブランチを作成する。
+
+```bash
+# 現在のブランチ名末尾の既存バックアップ接尾辞を置換して作成
+git branch -f "$(git rev-parse --abbrev-ref HEAD | sed 's/-[0-9a-f]\{9\}$//')-$(git rev-parse --short=9 HEAD)"
+```
+
+fixup の autosquash のみの場合はバックアップ不要。
+
 ## 注意
 
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
 - 段階的コミットの各段階で、可能であればコンパイル・lint を実行して壊れていないことを確認する
-- fixup コミットの autosquash はユーザーに委ねる（自動で rebase しない）
+- fixup が全て終わったら autosquash し、コミットメッセージの見直しと品質チェック（lint・build・test）を行う
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
