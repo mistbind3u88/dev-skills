@@ -1,12 +1,12 @@
 ---
 name: gh-edit
-description: GitHub の PR や Issue を作成・更新する。既存の内容を読み込んだ上で編集する。
+description: GitHubのPRやIssueを作成・更新する。既存の内容を読み込んだ上で編集する。
 allowed-tools: Bash(gh pr:*) Bash(gh issue:*) Bash(git log:*) Bash(git diff:*) Read
 ---
 
-# gh-edit スキル
+# gh-editスキル
 
-GitHub の PR や Issue を作成・更新する。
+GitHubのPRやIssueを作成・更新する。
 
 ## 手順
 
@@ -18,24 +18,24 @@ GitHub の PR や Issue を作成・更新する。
 
 ### 2-A. 新規作成
 
-#### PR の作成
+#### PRの作成
 
-`$SKILL_DIR/AGENTS.md` と `$SKILL_DIR/TEMPLATE.md` を Read ツールで読み込み、スタイル規則と概要欄の構造を確認する。
-ブランチのコミット履歴からタイトルと概要を作成する。PR は常に draft で作成する。
+`$SKILL_DIR/AGENTS.md` と `$SKILL_DIR/TEMPLATE.md` をReadツールで読み込み、スタイル規則と概要欄の構造を確認する。
+ブランチのコミット履歴からタイトルと概要を作成する。PRは常にdraftで作成する。
 
 ```bash
 # コミット履歴を確認
 git log --oneline main..HEAD
 git diff --stat main..HEAD
 
-# draft で作成
+# draftで作成
 gh pr create --draft --title "<タイトル>" --body "$(cat <<'EOF'
-<AGENTS.md と TEMPLATE.md に従って概要欄を作成>
+<AGENTS.mdとTEMPLATE.mdに従って概要欄を作成>
 EOF
 )"
 ```
 
-#### Issue の作成
+#### Issueの作成
 
 ```bash
 gh issue create --title "<タイトル>" --body "$(cat <<'EOF'
@@ -46,9 +46,9 @@ EOF
 
 ### 2-B. 既存の更新
 
-#### AGENTS.md と TEMPLATE.md を読み込む
+#### AGENTS.mdとTEMPLATE.mdを読み込む
 
-概要欄の編集前に、必ず `$SKILL_DIR/AGENTS.md` と `$SKILL_DIR/TEMPLATE.md` を Read ツールで読み込む。
+概要欄の編集前に、必ず `$SKILL_DIR/AGENTS.md` と `$SKILL_DIR/TEMPLATE.md` をReadツールで読み込む。
 
 #### タイトルと概要欄を読み込む
 
@@ -72,7 +72,7 @@ git diff --stat main..HEAD
 #### タイトルと概要欄を更新する
 
 既存の内容をベースに、修正・追記・削除を行う。
-タイトルはコミット履歴と概要欄の内容を踏まえて、PR/Issue の現在のスコープを正確に反映しているか見直す。
+タイトルはコミット履歴と概要欄の内容を踏まえて、PR/Issueの現在のスコープを正確に反映しているか見直す。
 
 ```bash
 # PRの場合
@@ -90,8 +90,8 @@ EOF
 
 ## 注意
 
-- PR は常に draft で作成する
+- PRは常にdraftで作成する
 - 既存の概要欄が空でない場合、必ず既存の内容を読み込んでから更新する
 - ユーザーが明示的に全面書き換えを指示しない限り、既存の構造を維持する
-- **PR 概要欄を作成・更新する前に、必ず `$SKILL_DIR/AGENTS.md` と `$SKILL_DIR/TEMPLATE.md` を Read ツールで読み込むこと**
+- **PR概要欄を作成・更新する前に、必ず `$SKILL_DIR/AGENTS.md` と `$SKILL_DIR/TEMPLATE.md` をReadツールで読み込むこと**
 - 内容を推測・記憶に頼らず、毎回実際に読み込んで確認する

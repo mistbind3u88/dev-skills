@@ -1,6 +1,6 @@
 ---
 name: link-skills
-description: リポジトリのトップレベルに skills ディレクトリがある場合、.claude/skills にシンボリックリンクを作成する。
+description: リポジトリのトップレベルにskillsディレクトリがある場合、.claude/skillsにシンボリックリンクを作成する。
 allowed-tools: Bash(ls:*) Bash(mkdir:*) Bash(ln:*) Bash(readlink:*)
 ---
 
@@ -25,7 +25,7 @@ ls -la .claude/skills 2>/dev/null
 readlink .claude/skills 2>/dev/null
 ```
 
-- 既に `../skills` へのシンボリックリンクが存在する場合は「既にリンク済み」と報告して終了する
+- すでに `../skills` へのシンボリックリンクが存在する場合は「すでにリンク済み」と報告して終了する
 - `.claude/skills` がシンボリックリンクでないディレクトリとして存在する場合は、上書きせず警告を出して終了する
 
 3. `.claude` ディレクトリを作成する（存在しない場合）
