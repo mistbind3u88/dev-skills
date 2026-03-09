@@ -1,7 +1,7 @@
 ---
 name: codex-review
 description: codex CLI を使って変更差分のコードレビューを実行する。設計完了後や実装・テスト完了後のレビューに使う。
-allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(codex review:*) Read
+allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git tag:*) Bash(codex review:*) Read
 ---
 
 # codex review スキル
@@ -51,9 +51,10 @@ allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-
 観点ごとに個別の `codex review` をバックグラウンドで実行する。タイトルには観点名をサフィックスとして付ける。
 
 ```bash
-# 例: 3 観点を並列実行
 codex review --title "<タイトル> [設計・実装]" "<共通コンテキスト + 設計・実装の観点指示>"
+
 codex review --title "<タイトル> [耐障害性]" "<共通コンテキスト + 耐障害性の観点指示>"
+
 codex review --title "<タイトル> [セキュリティ]" "<共通コンテキスト + セキュリティの観点指示>"
 ```
 
@@ -99,8 +100,15 @@ Review comment:
 
 報告後、対応が必要な指摘があればユーザーの判断を仰ぐ。
 
+5. レビュー完了後にチェックタグを設置する
+
+全観点のフィードバック報告が完了したら、`check/review` タグを現在の HEAD に設置する。
+
+```bash
+git tag -f check/review HEAD
+```
+
 ## 注意
 
-- プロンプトが長い場合はヒアドキュメントを `$()` で渡す
 - codex の実行は時間がかかるため、バックグラウンドで実行する
 - バックグラウンド実行の完了通知を受けたら、結果の読み込みとフィードバック報告を自動的に行う
