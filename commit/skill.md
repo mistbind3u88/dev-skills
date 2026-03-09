@@ -64,7 +64,7 @@ git log --oneline main..HEAD
 git show --stat <squash されたコミット>
 # 必要なら git commit --amend で修正
 
-# 品質チェック
+# 品質チェック（コマンドはリポジトリの README/AGENTS.md/CLAUDE.md を参照）
 make lint
 # 成功したら /mark で各チェックタグを設置
 ```
