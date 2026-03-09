@@ -1,7 +1,7 @@
 ---
 name: commit
 description: 変更をコミットする。変更が大きい場合はレイヤ構成に応じて段階的にコミットし、fixupやamendも適切に使い分ける。
-allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(git branch:*) Bash(GIT_SEQUENCE_EDITOR=:*) Bash(make:*)
+allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(git branch:*) Bash(GIT_SEQUENCE_EDITOR=:*) Bash(make lint:*) Bash(make build:*) Bash(make test:*)
 ---
 
 # commit スキル
@@ -66,6 +66,7 @@ git show --stat <squash されたコミット>
 
 # 品質チェック
 make lint
+# 成功したら /mark で各チェックタグを設置
 ```
 
 #### C. amend（直前のコミットへの修正）
@@ -143,6 +144,7 @@ fixup の autosquash のみの場合はバックアップ不要。
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
 - 段階的コミットの各段階で、可能であればコンパイル・lint を実行して壊れていないことを確認する
 - fixup が全て終わったら autosquash し、コミットメッセージの見直しと品質チェック（lint・build・test）を行う
+- 品質チェック（lint・build・test）が成功したら、`/mark lint`、`/mark build`、`/mark test` を実行してチェックタグを設置する
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
 - コミット後の PR 作成・更新は gh-edit スキル、push は push スキルに委ねる

@@ -1,7 +1,7 @@
 ---
 name: codex-review
 description: codex CLI を使って変更差分のコードレビューを実行する。設計完了後や実装・テスト完了後のレビューに使う。
-allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git tag:*) Bash(codex review:*) Read
+allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(codex review:*) Read
 ---
 
 # codex review スキル
@@ -102,11 +102,7 @@ Review comment:
 
 5. レビュー完了後にチェックタグを設置する
 
-全観点のフィードバック報告が完了したら、`check/review` タグを現在の HEAD に設置する。
-
-```bash
-git tag -f check/review HEAD
-```
+全観点のフィードバック報告が完了したら、`/mark review` を実行してチェックタグを設置する。
 
 ## 注意
 

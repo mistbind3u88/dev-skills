@@ -1,7 +1,7 @@
 ---
 name: push
 description: lint・test・build・codex review の通過を確認してから git push する。
-allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git push:*) Bash(git tag:*) Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(go vet:*) Bash(go test:*) Read
+allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git push:*) Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(go vet:*) Bash(go test:*) Read
 ---
 
 # push スキル
@@ -37,11 +37,7 @@ git rev-parse --abbrev-ref HEAD
 
 ### 3. チェックタグを確認する
 
-現在の HEAD に `check/*` タグが設置されているかを確認する。
-
-```bash
-git tag --points-at HEAD | grep '^check/'
-```
+`/mark --status` を実行して、現在の HEAD のチェック通過状況を確認する。
 
 ### 4. タグに基づいてチェックを実行する
 
@@ -49,20 +45,14 @@ git tag --points-at HEAD | grep '^check/'
 
 | チェック | タグ             | タグあり       | タグなし                     |
 | -------- | ---------------- | -------------- | ---------------------------- |
-| build    | `check/build`    | スキップ       | 実行し、成功したらタグ設置   |
-| lint     | `check/lint`     | スキップ       | 実行し、成功したらタグ設置   |
-| test     | `check/test`     | スキップ       | 実行し、成功したらタグ設置   |
-| review   | `check/review`   | スキップ       | ブロック（ユーザーに確認）   |
+| build    | `check/build`    | スキップ       | 実行し、成功したら `/mark build` |
+| lint     | `check/lint`     | スキップ       | 実行し、成功したら `/mark lint`  |
+| test     | `check/test`     | スキップ       | 実行し、成功したら `/mark test`  |
+| review   | `check/review`   | スキップ       | `/codex-review` を実行          |
 
-実行順序: build → lint → test。いずれかが失敗したら **push せずに停止** し、失敗内容をユーザーに報告する。
+実行順序: build → lint → test → review。いずれかが失敗したら **push せずに停止** し、失敗内容をユーザーに報告する。
 
-成功したチェックにはタグを設置する:
-
-```bash
-git tag -f "check/<type>" HEAD
-```
-
-review はこのスキル内では実行しない。タグがなければ「codex review が未実施です。先にレビューを実行しますか？」とユーザーに確認する。
+成功したチェックには `/mark <type>` を実行してタグを設置する。review は `/codex-review` が完了時に自動でタグを設置する。
 
 ### 5. 結果サマリーを表示する
 
@@ -90,6 +80,6 @@ push 後、結果を報告する。
 
 - 検出できなかった項目 (lint/test/build) は「スキップ」として扱い、ブロッカーにしない
 - codex review のみ、タグ未設置の場合はブロッカーとして扱う
-- build/lint/test が成功したら自動的に `check/<type>` タグを設置する
+- build/lint/test が成功したら `/mark <type>` でタグを設置する
 - `$ARGUMENTS` で `--skip-review` が指定された場合は codex review の確認をスキップする
 - `$ARGUMENTS` で `--force` が指定された場合は `git push --force-with-lease` を使う（ユーザーに確認後）
