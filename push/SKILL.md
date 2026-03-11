@@ -1,12 +1,12 @@
 ---
 name: push
-description: lint・test・build・codex review の通過を確認してから git push する。
+description: lint・build・test・codex review の通過を確認してから git push する。
 allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git push:*) Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(go vet:*) Bash(go test:*) Read
 ---
 
 # push スキル
 
-lint・test・build が通り、codex review 済みであることを確認してから push する。
+lint・build・test が通り、codex review 済みであることを確認してから push する。
 
 ## 手順
 
@@ -51,14 +51,14 @@ git rev-parse --abbrev-ref HEAD
 
 各チェック項目について、タグが現在の HEAD にあれば通過済みとしてスキップする。タグがなければ実行する。
 
-| チェック | タグ             | タグあり       | タグなし                     |
-| -------- | ---------------- | -------------- | ---------------------------- |
-| build    | `check/build`    | スキップ       | 実行し、成功したら `/mark build` |
-| lint     | `check/lint`     | スキップ       | 実行し、成功したら `/mark lint`  |
-| test     | `check/test`     | スキップ       | 実行し、成功したら `/mark test`  |
-| review   | `check/review`   | スキップ       | `/codex-review` を実行          |
+| チェック | タグなし                         | タグあり（現在の HEAD） |
+| -------- | -------------------------------- | ----------------------- |
+| lint     | 実行し、成功したら `/mark lint`  | スキップ                |
+| build    | 実行し、成功したら `/mark build` | スキップ                |
+| test     | 実行し、成功したら `/mark test`  | スキップ                |
+| review   | `/codex-review` を実行           | スキップ                |
 
-実行順序: build → lint → test → review。いずれかが失敗したら **push せずに停止** し、失敗内容をユーザーに報告する。
+実行順序: lint → build → test → review。いずれかが失敗したら **push せずに停止** し、失敗内容をユーザーに報告する。
 
 成功したチェックには `/mark <type>` を実行してタグを設置する。review は `/codex-review` が完了時に自動でタグを設置する。
 

@@ -6,27 +6,30 @@ CHECK_TYPES=(lint test build review)
 
 head_sha=$(git rev-parse HEAD)
 head_short=$(git rev-parse --short HEAD)
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+tag_prefix="mark/$branch"
 
 status() {
   for type in "${CHECK_TYPES[@]}"; do
-    tag="check/$type"
+    tag="$tag_prefix/$type"
     tag_sha=$(git rev-parse --verify "$tag" 2>/dev/null || true)
     if [[ -z "$tag_sha" ]]; then
-      printf "%-16s ✗ (未設置)\n" "$tag"
+      printf "%-16s ✗ (未設置)\n" "$type"
     elif [[ "$tag_sha" == "$head_sha" ]]; then
-      printf "%-16s ✓ (現在の HEAD)\n" "$tag"
+      printf "%-16s ✓ (現在の HEAD)\n" "$type"
     else
       tag_short=$(git rev-parse --short "$tag_sha")
       behind=$(git rev-list --count "$tag_sha".."$head_sha" 2>/dev/null || echo "?")
-      printf "%-16s ✗ (%s — %s commits behind)\n" "$tag" "$tag_short" "$behind"
+      printf "%-16s ✗ (%s — %s commits behind)\n" "$type" "$tag_short" "$behind"
     fi
   done
 }
 
 clean() {
-  tags=$(git tag -l 'check/*')
+  tags=$(git tag -l "$tag_prefix/*")
   if [[ -z "$tags" ]]; then
-    echo "check/ タグはありません"
+    echo "$tag_prefix/ タグはありません"
     return
   fi
   echo "$tags" | xargs git tag -d
@@ -42,8 +45,8 @@ mark() {
     echo "Error: unknown type '$type'. Valid types: ${CHECK_TYPES[*]}" >&2
     exit 1
   fi
-  git tag -f "check/$type" HEAD
-  echo "check/$type → $head_short"
+  git tag -f "$tag_prefix/$type" HEAD
+  echo "$tag_prefix/$type → $head_short"
 }
 
 if [[ $# -eq 0 ]]; then

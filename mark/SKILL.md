@@ -11,15 +11,15 @@ allowed-tools: Bash($SKILL_DIR/mark.sh:*)
 ## タグ命名規則
 
 ```
-check/<type>
+mark/<branch>/<type>
 ```
 
-| タグ名         | 意味                  |
-| -------------- | --------------------- |
-| `check/lint`   | lint 通過済み         |
-| `check/test`   | テスト通過済み        |
-| `check/build`  | ビルド通過済み        |
-| `check/review` | codex review 実施済み |
+ブランチ名を含めることで、複数ブランチの開発が干渉しない。
+
+| タグ例                   | 意味                                 |
+| ------------------------ | ------------------------------------ |
+| `mark/feature-foo/lint`  | feature-foo ブランチの lint 通過済み |
+| `mark/main/test`         | main ブランチのテスト通過済み       |
 
 ## 手順
 
