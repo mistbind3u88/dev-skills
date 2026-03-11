@@ -1,7 +1,7 @@
 ---
 name: push
 description: lint・build・test・codex review の通過を確認してから git push する。
-allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git push:*) Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(go vet:*) Bash(go test:*) Read
+allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git rev-parse:*) Bash(git push:*)
 ---
 
 # push スキル
@@ -21,62 +21,15 @@ git rev-parse --abbrev-ref HEAD
 - 未コミットの変更がある場合は push せず、先にコミットするようユーザーに伝える
 - main ブランチにいる場合は警告してユーザーに確認する
 
-### 2. ビルドツールを検出する
+### 2. チェックを実行する
 
-以下の優先順位でコマンドを特定する。
+`/check` を実行して、未チェック項目を一通り実行する。
 
-#### 優先: リポジトリのドキュメント
+`$ARGUMENTS` に `--skip-review` がある場合は `/check --skip-review` で渡す。
 
-リポジトリの `README.md`、`AGENTS.md`、`CLAUDE.md`、またはスキル定義（`.claude/skills/` 配下）に lint・test・build の実行コマンドが記載されていればそれを使う。
+全チェックが OK でない場合は push せずに停止する。
 
-#### フォールバック: プロジェクトルートのファイルから自動検出
-
-ドキュメントにコマンドの記載がない場合、プロジェクトルートのファイルから推定する。
-
-| ファイル       | 検出方法                                                   |
-| -------------- | ---------------------------------------------------------- |
-| `Makefile`     | `make` のターゲット一覧から `lint`、`test`、`build` を探す |
-| `package.json` | `scripts` フィールドから `lint`、`test`、`build` を探す    |
-| `Cargo.toml`   | `cargo clippy`、`cargo test`、`cargo build` を使う         |
-| `go.mod`       | `go vet`、`go test`、`go build` を使う                     |
-
-複数のビルドツールが存在する場合は、`Makefile` > `package.json` > 言語固有ツールの優先順位で選択する。
-該当するターゲットやスクリプトが存在しない項目はスキップする。
-
-### 3. チェックタグを確認する
-
-`/mark --status` を実行して、現在の HEAD のチェック通過状況を確認する。
-
-### 4. タグに基づいてチェックを実行する
-
-各チェック項目について、タグが現在の HEAD にあれば通過済みとしてスキップする。タグがなければ実行する。
-
-| チェック | タグなし                         | タグあり（現在の HEAD） |
-| -------- | -------------------------------- | ----------------------- |
-| lint     | 実行し、成功したら `/mark lint`  | スキップ                |
-| build    | 実行し、成功したら `/mark build` | スキップ                |
-| test     | 実行し、成功したら `/mark test`  | スキップ                |
-| review   | `/codex-review` を実行           | スキップ                |
-
-実行順序: lint → build → test → review。いずれかが失敗したら **push せずに停止** し、失敗内容をユーザーに報告する。
-
-成功したチェックには `/mark <type>` を実行してタグを設置する。review は `/codex-review` が完了時に自動でタグを設置する。
-
-### 5. 結果サマリーを表示する
-
-全チェック項目の結果を一覧で表示する。
-
-```
-push 前チェック:
-  lint:         OK
-  test:         OK
-  build:        OK (スキップ: ターゲットなし)
-  codex review: OK (2026-03-06T10:30 に実施)
-```
-
-全て OK の場合のみ次のステップに進む。
-
-### 6. push する
+### 3. push する
 
 ```bash
 git push -u origin HEAD
@@ -86,8 +39,4 @@ push 後、結果を報告する。
 
 ## 注意
 
-- 検出できなかった項目 (lint/test/build) は「スキップ」として扱い、ブロッカーにしない
-- codex review のみ、タグ未設置の場合はブロッカーとして扱う
-- build/lint/test が成功したら `/mark <type>` でタグを設置する
-- `$ARGUMENTS` で `--skip-review` が指定された場合は codex review の確認をスキップする
 - `$ARGUMENTS` で `--force` が指定された場合は `git push --force-with-lease` を使う（ユーザーに確認後）
