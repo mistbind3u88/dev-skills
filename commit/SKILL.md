@@ -60,11 +60,7 @@ git commit --fixup=<SHA>
 # → "fixup! fixup! feat: ..."
 ```
 
-あるコミットに対する fixup が全て終わったら autosquash する:
-
-1. autosquash を実行する
-2. squash 後のコミットメッセージが全変更を適切に反映しているか見直し、必要なら `git commit --amend` で修正する
-3. lint・build・test を実行して壊れていないことを確認する
+`$ARGUMENTS` に `--autosquash` が指定された場合、fixup コミット作成後に autosquash を実行する。指定がない場合は fixup コミットの作成のみで終了する。
 
 ```bash
 # autosquash 実行
@@ -154,7 +150,7 @@ fixup の autosquash のみの場合はバックアップ不要。
 
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
 - 段階的コミットの各段階で、可能であればコンパイル・lint を実行して壊れていないことを確認する
-- fixup が全て終わったら autosquash し、コミットメッセージの見直しと品質チェック（lint・build・test）を行う
+- `--autosquash` 指定時は autosquash 後にコミットメッセージの見直しと品質チェック（lint・build・test）を行う
 - 品質チェック（lint・build・test）が成功したら、`/mark lint`、`/mark build`、`/mark test` を実行してチェックタグを設置する
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
