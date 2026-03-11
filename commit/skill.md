@@ -49,6 +49,17 @@ git log --oneline main..HEAD
 git commit --fixup=<対象コミットのSHA>
 ```
 
+**fixup メッセージの規則**: `fixup!` プレフィックスは常に 1 つだけにする。対象コミットが既に `fixup!` 付きの場合でも、`fixup! fixup!` のように積み重ねない。元のコミットメッセージから `fixup!` を除いた部分を対象にする。
+
+```bash
+# Good: 元コミットが "fixup! feat: ..." でも fixup! は1つ
+git commit --fixup=<SHA>
+# → "fixup! feat: ..."
+
+# Bad: fixup! が積み重なる
+# → "fixup! fixup! feat: ..."
+```
+
 あるコミットに対する fixup が全て終わったら autosquash する:
 
 1. autosquash を実行する
