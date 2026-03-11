@@ -135,16 +135,10 @@ git log --oneline -3
 git status -s
 ```
 
-## rebase 時のバックアップ
+## rebase
 
-main の取り込みなど差分が大きくなる rebase や、結果の同一性を担保する必要がある rebase を行う前に、バックアップブランチを作成する。
-
-```bash
-# 現在のブランチ名末尾の既存バックアップ接尾辞を置換して作成
-git branch -f "$(git rev-parse --abbrev-ref HEAD | sed 's/-[0-9a-f]\{9\}$//')-$(git rev-parse --short=9 HEAD)"
-```
-
-fixup の autosquash のみの場合はバックアップ不要。
+- main の取り込みは `/catch-up` スキルに委ねる
+- fixup の autosquash はバックアップ不要
 
 ## 注意
 
