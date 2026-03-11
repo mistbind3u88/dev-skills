@@ -50,12 +50,18 @@ mark() {
 }
 
 if [[ $# -eq 0 ]]; then
-  echo "$USAGE" >&2
-  exit 1
+  for t in "${CHECK_TYPES[@]}"; do
+    mark "$t"
+  done
+  exit 0
 fi
 
 case "$1" in
   --status) status ;;
   --clean)  clean ;;
-  *)        mark "$1" ;;
+  *)
+    for arg in "$@"; do
+      mark "$arg"
+    done
+    ;;
 esac
