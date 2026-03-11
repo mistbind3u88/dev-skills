@@ -39,42 +39,7 @@ git log --oneline -5
 
 #### B. fixup（PR 内の既存コミットへの修正・漏れ追加）
 
-PR 内の既存コミットに対する修正やコミット漏れの追加の場合:
-
-```bash
-# 修正対象のコミットを特定
-git log --oneline main..HEAD
-
-# fixup コミットを作成
-git commit --fixup=<対象コミットのSHA>
-```
-
-**fixup メッセージの規則**: `fixup!` プレフィックスは常に 1 つだけにする。対象コミットが既に `fixup!` 付きの場合でも、`fixup! fixup!` のように積み重ねない。元のコミットメッセージから `fixup!` を除いた部分を対象にする。
-
-```bash
-# Good: 元コミットが "fixup! feat: ..." でも fixup! は1つ
-git commit --fixup=<SHA>
-# → "fixup! feat: ..."
-
-# Bad: fixup! が積み重なる
-# → "fixup! fixup! feat: ..."
-```
-
-`$ARGUMENTS` に `--autosquash` が指定された場合、fixup コミット作成後に autosquash を実行する。指定がない場合は fixup コミットの作成のみで終了する。
-
-```bash
-# autosquash 実行
-GIT_SEQUENCE_EDITOR=: git rebase --autosquash main
-
-# squash 後のコミットメッセージを確認・見直し
-git log --oneline main..HEAD
-git show --stat <squash されたコミット>
-# 必要なら git commit --amend で修正
-
-# 品質チェック（コマンドはリポジトリの README/AGENTS.md/CLAUDE.md を参照）
-make lint
-# 成功したら /mark で各チェックタグを設置
-```
+`/fixup` スキルに委ねる。
 
 #### C. amend（直前のコミットへの修正）
 
@@ -144,7 +109,6 @@ git status -s
 
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
 - 段階的コミットの各段階で、可能であればコンパイル・lint を実行して壊れていないことを確認する
-- `--autosquash` 指定時は autosquash 後にコミットメッセージの見直しと品質チェック（lint・build・test）を行う
 - 品質チェック（lint・build・test）が成功したら、`/mark lint`、`/mark build`、`/mark test` を実行してチェックタグを設置する
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
