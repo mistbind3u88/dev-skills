@@ -1,6 +1,6 @@
 ---
 name: ship
-description: チェック・コミット・push・PR更新を一連で実行するワークフロー。
+description: チェック・コミット・push・PR更新・CI監視を一連で実行するワークフロー。
 allowed-tools: ""
 ---
 
@@ -24,9 +24,14 @@ allowed-tools: ""
 
 チェック済みであることを確認して push する（ステップ1で通過済みのためスキップが期待される）。
 
-### 4. `/gh-edit`
+### 4. `/gh-edit` と `/watch-ci` を並行実行する
 
-PRの概要欄を作成・更新する。
+push 完了後、以下を並行で実行する:
+
+- `/gh-edit` — PR の概要欄を作成・更新する
+- `/watch-ci` — GitHub Actions の CI 実行を監視する
+
+`/watch-ci` が失敗を報告した場合、その旨をユーザーに伝える。
 
 ## 注意
 
