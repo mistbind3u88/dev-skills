@@ -24,7 +24,15 @@ allowed-tools: ""
 
 チェック済みであることを確認して push する（ステップ2で通過済みのためスキップが期待される）。
 
-### 4. `/gh-edit` と `/watch-ci` を並行実行する
+### 4. PR の存在を確認する
+
+```bash
+gh pr view --json number,title,state --jq '.'
+```
+
+PR が存在しない場合は `/gh-edit` で新規作成する。
+
+### 5. `/gh-edit` と `/watch-ci` を並行実行する
 
 push 完了後、以下を並行で実行する:
 
@@ -32,6 +40,24 @@ push 完了後、以下を並行で実行する:
 - `/watch-ci` — GitHub Actions の CI 実行を監視する
 
 `/watch-ci` が失敗を報告した場合、その旨をユーザーに伝える。
+
+#### autosquash のみの場合
+
+コード変更がなく autosquash でコミットを整理しただけの場合（ステップ4で PR が既に存在する場合）:
+
+- `/gh-edit` はスキップする（PR 概要欄の更新は不要）
+- PR へのコメント投稿はユーザーが指示した場合のみ行う
+- compare リンクには `/commit` の autosquash で作成されたバックアップブランチの SHA を旧 HEAD として使う
+
+```bash
+# バックアップブランチ（commit スキルの autosquash で作成済み）から旧 HEAD を取得
+OLD_HEAD=$(git rev-parse <バックアップブランチ名>)
+REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+
+gh pr comment <PR番号> --body "fixup コミットを autosquash で整理しました。
+
+- 差分: https://github.com/$REPO/compare/$OLD_HEAD...$(git rev-parse HEAD)"
+```
 
 ## 注意
 
