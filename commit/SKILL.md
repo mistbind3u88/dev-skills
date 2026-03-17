@@ -100,10 +100,21 @@ git log --oneline -3
 git status -s
 ```
 
-## rebase
+## autosquash
 
-- main の取り込みは `/catch-up` スキルに委ねる
-- fixup の autosquash はバックアップ不要
+- main の取り込み（rebase）は `/catch-up` スキルに委ねる。autosquash 時に main を取り込まない
+- autosquash の起点には main からブランチを切ったコミットハッシュを指定する
+
+```bash
+# バックアップブランチを作成（既存の接尾辞は除去して付け直す）
+git branch -f "$(git rev-parse --abbrev-ref HEAD | sed 's/-[0-9a-f]\{9\}$//')-$(git rev-parse --short=9 HEAD)"
+# ブランチの分岐点を特定
+BASE=$(git merge-base main HEAD)
+# 分岐点以降のコミットのみを autosquash
+GIT_SEQUENCE_EDITOR=: git rebase --autosquash "$BASE"
+```
+
+- コンフリクト解消時は、あるコミットに対する全ての fixup が squash された段階（= そのコミットが完成した状態）で lint・build・test を実行して通過を確認する。途中の fixup 適用中はビルドが通らない場合があるため、同一コミットへの fixup が連続する間はスキップしてよい
 
 ## 注意
 
