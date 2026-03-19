@@ -1,6 +1,6 @@
 ---
 name: gh-read
-description: GitHub の PR や Issue の主要な情報を取得して JSON で出力する。
+description: PR や Issue の情報（タイトル・概要・レビュー状態・差分量など）を取得する。作業開始時の要件把握や PR の状態確認に使う。
 allowed-tools: Bash(gh pr view:*) Bash(gh issue view:*) Bash(gh api:*)
 ---
 

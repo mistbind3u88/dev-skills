@@ -1,6 +1,6 @@
 ---
 name: watch-ci
-description: push 後に GitHub Actions の CI 実行を監視し、結果を報告する。
+description: push 後に GitHub Actions の CI を監視し、成功/失敗を報告する。失敗時はログから原因を分析する。
 allowed-tools: Bash(gh run list:*) Bash(gh run watch:*) Bash(gh run view:*) Bash(git rev-parse:*) Glob Read
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: gh-edit
-description: GitHubのPRやIssueを作成・更新する。既存の内容を読み込んだ上で編集する。
+description: PR や Issue の新規作成・概要欄の更新を行う。push 後の PR 作成、作業開始時の Issue 起票、概要欄の加筆修正に使う。
 allowed-tools: Bash(gh pr:*) Bash(gh issue:*) Bash(git log:*) Bash(git diff:*) Read
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: fixup
-description: 指示された内容に基づいてコードを修正し、対象コミットへの fixup コミットを作成する。
+description: コードを修正し対象コミットへの fixup コミットを作成する。レビュー指摘の対応やコミットの修正漏れの追加に使う。
 allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Read Edit
 ---
 
