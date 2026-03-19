@@ -1,7 +1,7 @@
 ---
 name: check
 description: mark で未チェックの項目（lint・build・test・review）を検出し、一通り実行する。
-allowed-tools: Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(go vet:*) Bash(go test:*) Read
+allowed-tools: Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(gofumpt:*) Bash(go test:*) Read
 ---
 
 # check スキル
@@ -33,7 +33,7 @@ mark タグが未設置の項目を検出し、実行する。
 | `Makefile`     | `make` のターゲット一覧から `lint`、`test`、`build` を探す |
 | `package.json` | `scripts` フィールドから `lint`、`test`、`build` を探す    |
 | `Cargo.toml`   | `cargo clippy`、`cargo test`、`cargo build` を使う         |
-| `go.mod`       | `go vet`、`go test`、`go build` を使う                     |
+| `go.mod`       | `gofumpt -l -d .`、`go test`、`go build` を使う            |
 
 該当するターゲットやスクリプトが存在しない項目はスキップする。
 
