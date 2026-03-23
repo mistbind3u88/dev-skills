@@ -33,9 +33,9 @@ mark タグが未設置の項目を検出し、実行する。
 | `Makefile`     | `make` のターゲット一覧から `lint`、`test`、`build` を探す |
 | `package.json` | `scripts` フィールドから `lint`、`test`、`build` を探す    |
 | `Cargo.toml`   | `cargo clippy`、`cargo test`、`cargo build` を使う         |
-| `go.mod`       | `gofumpt -l -d .`、`go test`、`go build` を使う            |
+| `go.mod`       | `golangci-lint run`、`go test ./...`、`go build ./...`     |
 
-該当するターゲットやスクリプトが存在しない項目はスキップする。
+ドキュメントにもプロジェクトファイルにも明示されていない項目は、言語標準のコマンドで実行する（例: Go なら `go build ./...`、`go test ./...`）。言語標準のコマンドも特定できない場合のみスキップする。
 
 ### 3. 未チェック項目を実行する
 
