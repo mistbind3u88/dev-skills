@@ -49,3 +49,8 @@
 - いずれかのステップが失敗したらワークフロー全体を停止する
 
 例: `ship`（`/check` → `/commit` → `/push` → `/gh-edit`）
+
+## 品質チェック
+
+- lint: `prettier --check .`
+- shellcheck: `shellcheck **/*.sh`
