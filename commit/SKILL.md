@@ -1,7 +1,7 @@
 ---
 name: commit
 description: 変更をコミットする。変更が大きい場合はレイヤ構成に応じて段階的にコミットし、fixupやamendも適切に使い分ける。
-allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(GIT_SEQUENCE_EDITOR=:*) Bash(make lint:*) Bash(make build:*) Bash(make test:*)
+allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(git stash:*) Bash(git restore:*) Bash(git branch:*) Bash(GIT_SEQUENCE_EDITOR=:*)
 ---
 
 # commit スキル
@@ -35,7 +35,12 @@ git log --oneline -5
 - lint が通る（プロジェクトに lint がある場合）
 - 可能な限りテストが通る
 
-段階的コミットの際は `git add <ファイル>` で対象を選択し、1 段階ずつコミットする。
+段階的コミットの際は `git add <ファイル>` で対象を選択し、1 段階ずつコミットする。各コミットの検証手順:
+
+1. `git stash --keep-index --include-untracked` で未ステージの変更を退避
+2. `/check --skip-review` で lint・build・test を実行（成功時に `/mark` でタグ設置される）
+3. コミット
+4. `git stash pop` で退避した変更を復元（コンフリクトした場合は `git restore` で HEAD に戻し stash を drop）
 
 #### B. fixup（PR 内の既存コミットへの修正・漏れ追加）
 
@@ -118,8 +123,7 @@ GIT_SEQUENCE_EDITOR=: git rebase --autosquash "$BASE"
 ## 注意
 
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
-- 段階的コミットの各段階で、可能であればコンパイル・lint を実行して壊れていないことを確認する
-- 品質チェック（lint・build・test）が成功したら、`/mark lint`、`/mark build`、`/mark test` を実行してチェックタグを設置する
+- 段階的コミットの品質検証は手順2-Aに従う。`/check --skip-review` が lint・build・test の実行と `/mark` でのタグ設置を行う
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
 - コミット後の PR 作成・更新は gh-edit スキル、push は push スキルに委ねる
