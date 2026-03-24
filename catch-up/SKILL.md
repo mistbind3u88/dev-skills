@@ -1,7 +1,7 @@
 ---
 name: catch-up
 description: main の最新をrebaseで取り込み、コンフリクトを解消する。
-allowed-tools: Bash(git fetch:*) Bash(git rebase:*) Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git branch:*) Bash(git add:*) Bash(git checkout:*) Read
+allowed-tools: Bash(git fetch:*) Bash(git rebase:*) Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-parse:*) Bash(git add:*) Bash(git checkout:*) Read
 ---
 
 # catch-up スキル
@@ -29,11 +29,7 @@ git fetch origin
 
 ### 3. バックアップブランチを作成する
 
-rebase 前に現在の状態を保存する。
-
-```bash
-git branch -f "$(git rev-parse --abbrev-ref HEAD | sed 's/-[0-9a-f]\{9\}$//')-$(git rev-parse --short=9 HEAD)"
-```
+rebase 前に `/backup-branch` で現在の状態を保存する。
 
 ### 4. rebase を開始する
 

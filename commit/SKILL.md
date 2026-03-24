@@ -1,7 +1,7 @@
 ---
 name: commit
 description: 変更をコミットする。変更が大きい場合はレイヤ構成に応じて段階的にコミットし、fixupやamendも適切に使い分ける。
-allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(git branch:*) Bash(GIT_SEQUENCE_EDITOR=:*) Bash(make lint:*) Bash(make build:*) Bash(make test:*)
+allowed-tools: Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git add:*) Bash(git commit:*) Bash(git show:*) Bash(git rev-parse:*) Bash(GIT_SEQUENCE_EDITOR=:*) Bash(make lint:*) Bash(make build:*) Bash(make test:*)
 ---
 
 # commit スキル
@@ -105,12 +105,11 @@ git status -s
 - main の取り込み（rebase）は `/catch-up` スキルに委ねる。autosquash 時に main を取り込まない
 - autosquash の起点には main からブランチを切ったコミットハッシュを指定する
 
+1. `/backup-branch` でバックアップブランチを作成する
+2. autosquash を実行する
+
 ```bash
-# バックアップブランチを作成（既存の接尾辞は除去して付け直す）
-git branch -f "$(git rev-parse --abbrev-ref HEAD | sed 's/-[0-9a-f]\{9\}$//')-$(git rev-parse --short=9 HEAD)"
-# ブランチの分岐点を特定
 BASE=$(git merge-base main HEAD)
-# 分岐点以降のコミットのみを autosquash
 GIT_SEQUENCE_EDITOR=: git rebase --autosquash "$BASE"
 ```
 
