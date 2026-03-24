@@ -1,7 +1,7 @@
 ---
 name: gh-edit
 description: PR や Issue の新規作成・概要欄の更新を行う。push 後の PR 作成、作業開始時の Issue 起票、概要欄の加筆修正に使う。
-allowed-tools: Bash(gh pr:*) Bash(gh issue:*) Bash(git log:*) Bash(git diff:*) Read
+allowed-tools: Bash(gh pr:*) Bash(gh issue:*) Bash(git log:*) Bash(git diff:*) Read Write Edit
 ---
 
 # gh-editスキル
@@ -37,25 +37,28 @@ PR・Issueを問わず、概要欄の最初の見出しは `# Subject` とし、
 
 ブランチのコミット履歴からタイトルと概要を作成する。PRは常にdraftで作成する。
 
+1. `.claude/github/` 配下にPRの概要欄となるドキュメントを作成する
+
 ```bash
 git log --oneline main..HEAD
 git diff --stat main..HEAD
+```
 
-gh pr create --draft --title "<タイトル>" --body "$(cat <<'EOF'
-<テンプレートに従って概要欄を作成>
-EOF
-)"
+2. ドキュメントの作成が済んだら、PR 作成コマンドを実行する
+
+```bash
+gh pr create --draft --title "<タイトル>" --body-file .claude/github/<ドキュメントファイル>
 ```
 
 ### 3-B. Issueの新規作成
 
 Issueは直接 `gh issue create` するのではなく、まずローカルに設計ドキュメントを書き出し、レビューを経てから投稿する。
 
-1. `.claude/docs/` 配下にIssueの概要欄となるドキュメントを作成する
+1. `.claude/github/` 配下にIssueの概要欄となるドキュメントを作成する
 2. ドキュメントの作成が済んだら、Issue 作成コマンドを提案してユーザーの承認を得る（ドキュメントの内容確認とコマンド実行の承認を兼ねる）
 
 ```bash
-gh issue create --title "<タイトル>" --body-file .claude/docs/<ドキュメントファイル>
+gh issue create --title "<タイトル>" --body-file .claude/github/<ドキュメントファイル>
 ```
 
 ### 3-C. 既存の更新
@@ -84,7 +87,8 @@ git diff --stat main..HEAD
 既存の内容をベースに、修正・追記・削除を行う。
 タイトルはコミット履歴と概要欄の内容を踏まえて、PR/Issueの現在のスコープを正確に反映しているか見直す。
 
-概要欄のソースファイルがある場合（Issue の `.claude/docs/` ドキュメントなど）は、ソースファイルを先に更新してから `--body-file` で反映する。
+概要欄のソースファイルがある場合は、ソースファイルを先に更新してから `--body-file` で反映する。
+ソースファイルがない場合は `.claude/github/` 配下に新規作成する。
 
 ```bash
 # PRの場合
@@ -92,15 +96,6 @@ gh pr edit <番号> --title "<タイトル>" --body-file <ソースファイル>
 
 # Issueの場合
 gh issue edit <番号> --title "<タイトル>" --body-file <ソースファイル>
-```
-
-ソースファイルがない場合は HEREDOC で渡す。
-
-```bash
-gh pr edit <番号> --title "<タイトル>" --body "$(cat <<'EOF'
-<既存の内容をベースに更新>
-EOF
-)"
 ```
 
 ## 注意
