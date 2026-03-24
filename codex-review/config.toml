@@ -1,0 +1,4 @@
+# codex review 実行時に -c オプションで上書きする設定。
+# ~/.codex/config.toml の通常設定とは独立して管理する。
+model = "gpt-5.4-mini"
+model_reasoning_effort = "medium"
