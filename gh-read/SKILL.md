@@ -27,19 +27,19 @@ gh pr view <number> --json number,url,title,body,state,author,baseRefName,headRe
 
 取得フィールド:
 
-| フィールド | 内容 |
-|-----------|------|
-| `number`, `url` | 識別情報 |
-| `title`, `body` | タイトルと概要欄 |
-| `state` | open / closed / merged |
-| `author` | 作成者 |
-| `baseRefName`, `headRefName` | ベースブランチとヘッドブランチ |
-| `labels` | ラベル |
-| `isDraft` | ドラフト状態 |
-| `reviewDecision` | レビュー状態（APPROVED / CHANGES_REQUESTED / REVIEW_REQUIRED） |
-| `additions`, `deletions`, `changedFiles` | 差分の量 |
-| `files` | 変更ファイルリスト（パス・追加行・削除行） |
-| `closingIssuesReferences` | リンク済み Issue |
+| フィールド                               | 内容                                                           |
+| ---------------------------------------- | -------------------------------------------------------------- |
+| `number`, `url`                          | 識別情報                                                       |
+| `title`, `body`                          | タイトルと概要欄                                               |
+| `state`                                  | open / closed / merged                                         |
+| `author`                                 | 作成者                                                         |
+| `baseRefName`, `headRefName`             | ベースブランチとヘッドブランチ                                 |
+| `labels`                                 | ラベル                                                         |
+| `isDraft`                                | ドラフト状態                                                   |
+| `reviewDecision`                         | レビュー状態（APPROVED / CHANGES_REQUESTED / REVIEW_REQUIRED） |
+| `additions`, `deletions`, `changedFiles` | 差分の量                                                       |
+| `files`                                  | 変更ファイルリスト（パス・追加行・削除行）                     |
+| `closingIssuesReferences`                | リンク済み Issue                                               |
 
 #### Issue の場合
 
@@ -49,14 +49,14 @@ gh issue view <number> --json number,url,title,body,state,author,labels,assignee
 
 取得フィールド:
 
-| フィールド | 内容 |
-|-----------|------|
-| `number`, `url` | 識別情報 |
+| フィールド      | 内容             |
+| --------------- | ---------------- |
+| `number`, `url` | 識別情報         |
 | `title`, `body` | タイトルと概要欄 |
-| `state` | open / closed |
-| `author` | 作成者 |
-| `labels` | ラベル |
-| `assignees` | アサイン |
+| `state`         | open / closed    |
+| `author`        | 作成者           |
+| `labels`        | ラベル           |
+| `assignees`     | アサイン         |
 
 Issue にリンク済みの PR を取得する場合:
 
