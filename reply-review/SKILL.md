@@ -119,7 +119,7 @@ gh api repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions -f content="+1
 
 ## 注意
 
-- 既存リプライがある場合は二重投稿にならないよう確認する
+- **二重投稿の防止**: ステップ1で既存リプライを確認し、自分（`git config user.name` または GitHub ログインユーザー）のリプライが既にある場合は投稿をスキップする。force push によりコメントが outdated 状態になっても、API 上はリプライが残っている場合があるため、`in_reply_to_id` でのフィルタに加えて投稿者名でも照合する
 - コミットハッシュは短縮形（7-9文字）で記載し、コードブロック（`` ` ``）で囲まない。GitHub UI 上でコミットへのリンクとして自動認識させるため
 - リプライの読み手はレビュアー（人間）。diff の羅列ではなく、何をどう変えたかが伝わる要約にする
 - owner/repo は `gh api repos/{owner}/{repo}` または `git remote get-url origin` から取得する
