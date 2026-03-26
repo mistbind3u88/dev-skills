@@ -34,8 +34,10 @@ rebase 前に `/backup-branch` で現在の状態を保存する。
 ### 4. rebase を開始する
 
 ```bash
-git rebase origin/main
+git rebase --rebase-merges origin/main
 ```
+
+`--rebase-merges` によりマージコミットを保持する。特別な指示がない限りマージコミットをフラット化しない。
 
 #### コンフリクトが発生した場合
 

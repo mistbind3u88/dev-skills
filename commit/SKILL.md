@@ -115,7 +115,7 @@ git status -s
 
 ```bash
 BASE=$(git merge-base main HEAD)
-GIT_SEQUENCE_EDITOR=: git rebase --autosquash "$BASE"
+GIT_SEQUENCE_EDITOR=: git rebase --autosquash --rebase-merges "$BASE"
 ```
 
 - コンフリクト解消時は、あるコミットに対する全ての fixup が squash された段階（= そのコミットが完成した状態）で lint・build・test を実行して通過を確認する。途中の fixup 適用中はビルドが通らない場合があるため、同一コミットへの fixup が連続する間はスキップしてよい
