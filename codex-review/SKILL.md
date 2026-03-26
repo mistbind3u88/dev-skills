@@ -34,6 +34,15 @@ allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git diff:*) Bash(git rev-
 codex review --title "<タイトル>" "<共通コンテキスト + レビュー指示>"
 ```
 
+### オプション: デフォルトモデルで実行
+
+`$ARGUMENTS` に `--default-model` が含まれる場合、`$SKILL_DIR/config.toml` の `-c` オプションを付けずに実行する。`~/.codex/config.toml` のデフォルト設定が使われる。
+
+```bash
+# --default-model 指定時: -c オプションなし
+codex review --title "<タイトル>" "<共通コンテキスト + レビュー指示>"
+```
+
 ### オプション: 観点別レビュー
 
 `$ARGUMENTS` や口頭指示で観点を指定された場合、観点ごとに個別の `codex review` を並列実行する。
