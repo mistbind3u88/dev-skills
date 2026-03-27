@@ -65,7 +65,18 @@ git diff {sha}~1 {sha} -- {path}
 - <変更内容の要約 1>
 - <変更内容の要約 2>
 
-該当コミット: {sha1}
+該当コミット: {sha}
+```
+
+#### 対応内容の示し方
+
+コミットか差分リンクのどちらか一方を使う。両方は不要。
+
+- **fixup コミットが push 済みの場合**: fixup コミットのハッシュを記載する
+- **autosquash / rebase でコミットを潰した場合**: force push 前後の HEAD の compare リンクを添付する。`..`（2ドット）を使うこと（`...` 3ドットではない）
+
+```markdown
+差分: https://github.com/{owner}/{repo}/compare/{old_sha}..{new_sha}
 ```
 
 派生対応がある場合は見出しで整理する。
