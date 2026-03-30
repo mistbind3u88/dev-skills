@@ -18,7 +18,13 @@ ls -d skills 2>/dev/null
 
 存在しない場合はエラーメッセージを出して終了する。
 
-2. `.claude/skills` の現在の状態を確認する
+2. `.claude` ディレクトリを作成する（存在しない場合）
+
+```bash
+mkdir -p .claude
+```
+
+3. `.claude/skills` の現在の状態を確認する
 
 ```bash
 ls -la .claude/skills 2>/dev/null
@@ -27,12 +33,6 @@ readlink .claude/skills 2>/dev/null
 
 - すでに `../skills` へのシンボリックリンクが存在する場合は「すでにリンク済み」と報告して終了する
 - `.claude/skills` がシンボリックリンクでないディレクトリとして存在する場合は、上書きせず警告を出して終了する
-
-3. `.claude` ディレクトリを作成する（存在しない場合）
-
-```bash
-mkdir -p .claude
-```
 
 4. シンボリックリンクを作成する
 
