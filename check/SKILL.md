@@ -58,6 +58,7 @@ git diff --name-only main..HEAD
 変更が特定の言語やディレクトリに閉じている場合、無関係な言語のチェックはスキップする。
 
 例:
+
 - Python（notebooks）のみの変更 → Go の lint・build・test はスキップ
 - Go のみの変更 → Python 関連のチェックはスキップ
 - 複数言語にまたがる変更 → 該当する言語のチェックをすべて実行
