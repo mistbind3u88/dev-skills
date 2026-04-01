@@ -122,6 +122,7 @@ GIT_SEQUENCE_EDITOR=: git rebase --autosquash --rebase-merges "$BASE"
 
 ## 注意
 
+- main/master ブランチ上で直接コミットしない。コミット前に現在のブランチを確認し、main/master であれば作業ブランチを切ってから作業する
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
 - 段階的コミットの品質検証は手順2-Aに従う。`/check --skip-review` が lint・build・test の実行と `/mark` でのタグ設置を行う
 - amend 後に force push が必要な場合はユーザーに確認する
