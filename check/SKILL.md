@@ -1,6 +1,6 @@
 ---
 name: check
-description: mark で未チェックの項目（lint・build・test・review）を検出し、一通り実行する。
+description: mark で未チェックの項目（lint・build・test・doc-sync・review）を検出し、一通り実行する。
 allowed-tools: Bash(make lint:*) Bash(make test:*) Bash(make build:*) Bash(make -n:*) Bash(npm run:*) Bash(npm test:*) Bash(yarn run:*) Bash(yarn test:*) Bash(pnpm run:*) Bash(pnpm test:*) Bash(cargo build:*) Bash(cargo clippy:*) Bash(cargo test:*) Bash(go build:*) Bash(gofumpt:*) Bash(go test:*) Read
 ---
 
@@ -69,14 +69,15 @@ git diff --name-only main..HEAD
 
 タグが現在の HEAD にない項目を順に実行する。
 
-| チェック | タグなし                         | タグあり（現在の HEAD） |
-| -------- | -------------------------------- | ----------------------- |
-| lint     | 実行し、成功したら `/mark lint`  | スキップ                |
-| build    | 実行し、成功したら `/mark build` | スキップ                |
-| test     | 実行し、成功したら `/mark test`  | スキップ                |
-| review   | `/codex-review` を実行           | スキップ                |
+| チェック | タグなし                                          | タグあり（現在の HEAD） |
+| -------- | ------------------------------------------------- | ----------------------- |
+| lint     | 実行し、成功したら `/mark lint`                   | スキップ                |
+| build    | 実行し、成功したら `/mark build`                  | スキップ                |
+| test     | 実行し、成功したら `/mark test`                   | スキップ                |
+| doc-sync | `/doc-sync` を実行し、成功したら `/mark doc-sync` | スキップ                |
+| review   | `/codex-review` を実行                            | スキップ                |
 
-実行順序: lint → build → test → review。いずれかが失敗したら停止し、失敗内容をユーザーに報告する。
+実行順序: lint → build → test → doc-sync → review。いずれかが失敗したら停止し、失敗内容をユーザーに報告する。
 
 ### 4. 結果サマリーを表示する
 
@@ -87,12 +88,13 @@ git diff --name-only main..HEAD
   lint:         OK
   build:        OK (スキップ: ターゲットなし)
   test:         OK
+  doc-sync:     OK
   codex review: OK
 ```
 
 ## 注意
 
 - 検出できなかった項目（lint/build/test）は「スキップ」として扱い、ブロッカーにしない
-- build/lint/test が成功したら `/mark <type>` でタグを設置する
+- build/lint/test/doc-sync が成功したら `/mark <type>` でタグを設置する
 - review は `/codex-review` が完了時に自動でタグを設置する
 - `$ARGUMENTS` で `--skip-review` が指定された場合は review をスキップする
