@@ -77,7 +77,12 @@ git diff --name-only main..HEAD
 | doc-check | `/doc-check` を実行し、成功したら `/mark doc-check` | スキップ                |
 | review    | `/codex-review` を実行                              | スキップ                |
 
-実行順序: lint → build → test → doc-check → review。いずれかが失敗したら停止し、失敗内容をユーザーに報告する。
+実行順序:
+
+1. **lint → build → test** と **doc-check** を並列実行する
+2. すべて成功したら **review** を実行する
+
+いずれかが失敗したら停止し、失敗内容をユーザーに報告する。並列実行中に片方が失敗した場合、もう片方の完了を待ってから両方の結果を報告する。
 
 ### 4. 結果サマリーを表示する
 
