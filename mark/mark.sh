@@ -2,7 +2,7 @@
 set -euo pipefail
 
 USAGE="Usage: mark.sh <type|--status|--clean>"
-CHECK_TYPES=(lint test build review)
+CHECK_TYPES=(lint test build doc-check review)
 
 head_sha=$(git rev-parse HEAD)
 head_short=$(git rev-parse --short HEAD)

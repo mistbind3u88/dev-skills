@@ -48,6 +48,6 @@ mark/<branch>/<type>
 - タグはローカル専用。`git push` のデフォルトでは送信されない
 - コミットが進むとタグは古いコミットに残るため、再チェック後に再設置が必要
 - 以下のスキルが関連処理の成功後に `/mark` を呼び出してタグを設置する:
-  - **check**: lint/build/test 実行成功後にそれぞれのタグを設置
+  - **check**: lint/build/test/doc-check 実行成功後にそれぞれのタグを設置
   - **codex-review**: レビュー完了後に review タグを設置
   - **commit**: fixup 後の品質チェック成功後に lint/build/test タグを設置
