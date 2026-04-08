@@ -6,15 +6,15 @@ allowed-tools: Bash(gh search:*) Bash(gh api:*) Bash(date:*) Read Write Edit
 
 # monthly-report スキル
 
-指定した GitHub org での月次活動を集計し、報告書を作成する。
+指定した GitHub owner 配下での月次活動を集計し、報告書を作成する。`org` 未指定時は自分の個人リポジトリを対象にする。
 
 ## 引数
 
 ```
-$ARGUMENTS: <org> <YYYY-MM> [出力ファイルパス]
+$ARGUMENTS: [org] <YYYY-MM> [出力ファイルパス]
 ```
 
-- `<org>`: GitHub organization 名（必須）
+- `[org]`: GitHub organization 名。省略時は個人リポジトリを対象にする
 - `<YYYY-MM>`: 対象月（必須）
 - `[出力ファイルパス]`: 省略時はユーザーに確認する
 
@@ -22,20 +22,20 @@ $ARGUMENTS: <org> <YYYY-MM> [出力ファイルパス]
 
 ### 1. データ収集
 
-以下の 4 つの検索を並列実行する。
+以下の 4 つの検索を並列実行する。`org` が指定された場合のみ `--owner=<org>` を付ける。未指定時は `--owner=@me` を付けて個人リポジトリに限定する。
 
 ```bash
 # 当月作成の Issue
-gh search issues --author=@me --owner=<org> --created=<YYYY-MM-01>..<YYYY-MM-末日> --json number,title,repository,state,closedAt,createdAt --limit 200
+gh search issues --author=@me --owner=<owner> --created=<YYYY-MM-01>..<YYYY-MM-末日> --json number,title,repository,state,closedAt,createdAt --limit 200
 
 # 当月作成の PR
-gh search prs --author=@me --owner=<org> --created=<YYYY-MM-01>..<YYYY-MM-末日> --json number,title,repository,state,closedAt,createdAt --limit 200
+gh search prs --author=@me --owner=<owner> --created=<YYYY-MM-01>..<YYYY-MM-末日> --json number,title,repository,state,closedAt,createdAt --limit 200
 
 # 前月以前作成で当月中に merge/close された PR
-gh search prs --author=@me --owner=<org> --merged-at=<YYYY-MM-01>..<YYYY-MM-末日> --created=..<前月末日> --json number,title,repository,state,closedAt,createdAt --limit 200
+gh search prs --author=@me --owner=<owner> --merged-at=<YYYY-MM-01>..<YYYY-MM-末日> --created=..<前月末日> --json number,title,repository,state,closedAt,createdAt --limit 200
 
 # 前月以前作成で当月中に close された Issue
-gh search issues --author=@me --owner=<org> --closed=<YYYY-MM-01>..<YYYY-MM-末日> --created=..<前月末日> --json number,title,repository,state,closedAt,createdAt --limit 200
+gh search issues --author=@me --owner=<owner> --closed=<YYYY-MM-01>..<YYYY-MM-末日> --created=..<前月末日> --json number,title,repository,state,closedAt,createdAt --limit 200
 ```
 
 ### 2. 月末時点のステータスを特定する
@@ -84,7 +84,7 @@ Issue/PR 数とステータス内訳、前月からの持ち越し。
 
 ## 注意
 
-- 読み手は「同じ org で日常的に開発している同僚」を想定する。前提知識はあるが、この月に何をしていたかは知らない人
+- 読み手は「同じ owner 配下のリポジトリで日常的に開発している同僚」を想定する。個人リポジトリ対象の場合も、前提知識はあるがこの月に何をしていたかは知らない人として書く
 - テーマ軸で整理する。時系列での記述は補足に留める
 - 前月からの持ち越しや翌月への引き継ぎは明示する
 - `gh search prs` の `--merged` フラグは bool 型。日付範囲には `--merged-at` を使う
