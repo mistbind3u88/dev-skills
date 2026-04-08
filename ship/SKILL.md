@@ -54,7 +54,7 @@ push 完了後、以下を並行で実行する:
 ```bash
 gh pr comment <PR番号> --body "fixup コミットを autosquash で整理しました。
 
-- 差分: https://github.com/<owner/repo>/compare/<旧HEAD>...<新HEAD>"
+- 差分: https://github.com/<owner/repo>/compare/<旧HEAD>..<新HEAD>"
 ```
 
 ## 注意
