@@ -63,10 +63,9 @@ git diff --staged --stat
 git commit --amend --no-edit
 
 # メッセージも更新する場合
-git commit --amend -m "$(cat <<'EOF'
+git commit --amend -F - <<'EOF'
 <type>: <全変更を反映した説明>
 EOF
-)"
 ```
 
 ### 3. コミットメッセージを作成する
@@ -88,10 +87,9 @@ conventional commits 形式で記述する。
 メッセージはヒアドキュメントで渡す。`Co-Authored-By` は実在する共同編集者を明示したい場合だけ追加し、固定の AI 名義は入れない:
 
 ```bash
-git commit -m "$(cat <<'EOF'
+git commit -F - <<'EOF'
 <type>: <説明>
 EOF
-)"
 ```
 
 ### 4. コミット後の確認
@@ -110,8 +108,8 @@ git status -s
 2. autosquash を実行する
 
 ```bash
-BASE=$(git merge-base main HEAD)
-GIT_SEQUENCE_EDITOR=: git rebase --autosquash --rebase-merges "$BASE"
+git merge-base main HEAD
+GIT_SEQUENCE_EDITOR=: git rebase --autosquash --rebase-merges <上のコマンドで確認したハッシュ>
 ```
 
 - コンフリクト解消時は、あるコミットに対する全ての fixup が squash された段階（= そのコミットが完成した状態）で lint・build・test を実行して通過を確認する。途中の fixup 適用中はビルドが通らない場合があるため、同一コミットへの fixup が連続する間はスキップしてよい
