@@ -15,17 +15,21 @@ allowed-tools: Bash(git fetch:*) Bash(git rebase:*) Bash(git status:*) Bash(git 
 ```bash
 git status -s
 git rev-parse --abbrev-ref HEAD
-git log --oneline main..HEAD
 ```
 
 - 未コミットの変更がある場合は先にコミットするようユーザーに伝える
 - main ブランチにいる場合は `git pull --rebase` で済むので、そちらを案内する
 
-### 2. リモートの最新を取得する
+### 2. リモートの最新を取得し差分を確認する
 
 ```bash
 git fetch origin
+git log --oneline origin/main..HEAD
+git log --oneline HEAD..origin/main
 ```
+
+- `HEAD..origin/main` が空なら origin/main に新しいコミットはないので rebase 不要。ユーザーに報告して終了する
+- `origin/main..HEAD` でブランチ固有のコミット数を記録しておく（rebase 後の確認用）
 
 ### 3. バックアップブランチを作成する
 
