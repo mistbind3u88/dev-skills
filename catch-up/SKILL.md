@@ -73,6 +73,10 @@ git status -s
 
 rebase 前後でコミット数が変わっていないことを確認する。
 
+### 6. PR コメント
+
+PR が存在する場合、`/pr-progress` に委譲して catch-up の差分コメントを投稿する。
+
 ## 注意
 
 - rebase 中に `git rebase --abort` が必要な場合はユーザーに確認する

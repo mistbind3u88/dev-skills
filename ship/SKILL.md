@@ -48,14 +48,7 @@ push 完了後、以下を並行で実行する:
 コード変更がなく autosquash でコミットを整理しただけの場合（ステップ4で PR が既に存在する場合）:
 
 - `/gh-edit` はスキップする（PR 概要欄の更新は不要）
-- **draft の PR にはコメントしない。** draft 段階ではレビュアーへの通知は不要で、概要欄の更新で十分
-- レビュー中（non-draft）の PR ではユーザーが指示した場合にコメントする。compare リンクの旧 HEAD には `/commit` の autosquash で作成されたバックアップブランチのハッシュを使う。リポジトリ名・PR 番号・ハッシュは会話コンテキストから直接埋め込む
-
-```bash
-gh pr comment <PR番号> --body "fixup コミットを autosquash で整理しました。
-
-- 差分: https://github.com/<owner/repo>/compare/<旧HEAD>..<新HEAD>"
-```
+- `/pr-progress` に委譲して autosquash の差分コメントを投稿する
 
 ## 注意
 
