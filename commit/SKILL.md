@@ -65,8 +65,6 @@ git commit --amend --no-edit
 # メッセージも更新する場合
 git commit --amend -m "$(cat <<'EOF'
 <type>: <全変更を反映した説明>
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -87,13 +85,11 @@ conventional commits 形式で記述する。
 - `ci`: CI/CD
 - `chore`: その他
 
-メッセージはヒアドキュメントで渡す:
+メッセージはヒアドキュメントで渡す。`Co-Authored-By` は実在する共同編集者を明示したい場合だけ追加し、固定の AI 名義は入れない:
 
 ```bash
 git commit -m "$(cat <<'EOF'
 <type>: <説明>
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 EOF
 )"
 ```
