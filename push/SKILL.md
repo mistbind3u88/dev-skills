@@ -23,9 +23,9 @@ git rev-parse --abbrev-ref HEAD
 
 ### 2. チェックを実行する
 
-`/check` を実行して、未チェック項目を一通り実行する。
+スキル `/check` を実行する。
 
-`$ARGUMENTS` に `--skip-review` がある場合は `/check --skip-review` で渡す。
+`$ARGUMENTS` に `--skip-review` がある場合はスキル `/check --skip-review` を実行する。
 
 全チェックが OK でない場合は push せずに停止する。
 
@@ -39,7 +39,7 @@ push 後、結果を報告する。
 
 ### 4. コンフリクト解消時の PR コメント
 
-rebase で main を取り込んでコンフリクトを解消した場合（`--force-with-lease` で push した場合）、`/pr-progress` に委譲してコメントを投稿する。push 前に旧 HEAD を記録しておくこと。
+rebase で main を取り込んでコンフリクトを解消した場合（`--force-with-lease` で push した場合）、スキル `/pr-progress` を実行してコメントを投稿する。push 前に旧 HEAD を記録しておくこと。
 
 ## 注意
 

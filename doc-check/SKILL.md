@@ -1,6 +1,6 @@
 ---
 name: doc-check
-description: コード変更に対して関連ドキュメントが整合しているかをチェックする。不整合があれば報告のみ行い、修正は /doc-sync に委ねる。
+description: コード変更に対して関連ドキュメントが整合しているかをチェックする。不整合があれば報告のみ行い、修正はスキル /doc-sync で行う。
 allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Read Glob Grep
 ---
 
@@ -61,5 +61,5 @@ git log --oneline main..HEAD
 
 ## 注意
 
-- このスキルはチェックと報告のみを行う。ドキュメントの修正は `/doc-sync` に委ねる
+- このスキルはチェックと報告のみを行う。ドキュメントの修正はスキル `/doc-sync` で行う
 - `/check` から呼び出された場合、不整合があれば check 全体を失敗にする

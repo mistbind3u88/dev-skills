@@ -85,5 +85,5 @@ gh api graphql -f query='
 
 ## 注意
 
-- このスキルは情報の取得と出力のみを行う。PR や Issue の編集は `/gh-edit` に委ねる
-- コメントやレビューコメントの収集は `/collect-feedback` に委ねる
+- このスキルは情報の取得と出力のみを行う。PR や Issue の編集はスキル `/gh-edit` で行う
+- コメントやレビューコメントの収集はスキル `/collect-feedback` で行う

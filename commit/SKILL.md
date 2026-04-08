@@ -44,7 +44,7 @@ git log --oneline -5
 
 #### B. fixup（PR 内の既存コミットへの修正・漏れ追加）
 
-`/fixup` スキルに委ねる。
+スキル `/fixup` を実行する。
 
 #### C. amend（直前のコミットへの修正）
 
@@ -107,7 +107,7 @@ git status -s
 
 ## autosquash
 
-- main の取り込み（rebase）は `/catch-up` スキルに委ねる。autosquash 時に main を取り込まない
+- main の取り込み（rebase）はスキル `/catch-up` で行う。autosquash 時に main を取り込まない
 - autosquash の起点には main からブランチを切ったコミットハッシュを指定する
 
 1. `/backup-branch` でバックアップブランチを作成する
@@ -127,4 +127,4 @@ GIT_SEQUENCE_EDITOR=: git rebase --autosquash --rebase-merges "$BASE"
 - 段階的コミットの品質検証は手順2-Aに従う。`/check --skip-review` が lint・build・test の実行と `/mark` でのタグ設置を行う
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
-- コミット後の PR 作成・更新は gh-edit スキル、push は push スキルに委ねる
+- コミット後の PR 作成・更新はスキル `/gh-edit`、push はスキル `/push` で行う

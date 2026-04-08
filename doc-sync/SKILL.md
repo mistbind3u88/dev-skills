@@ -12,7 +12,7 @@ allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Read Edit Glo
 
 ### 1. 不整合を特定する
 
-`/doc-check` を実行して、現在の不整合を把握する。
+スキル `/doc-check` を実行して、現在の不整合を把握する。
 
 ### 2. 修正方針をユーザーに提示する
 
@@ -30,7 +30,7 @@ allowed-tools: Bash(git diff:*) Bash(git log:*) Bash(git status:*) Read Edit Glo
 
 ### 4. 再チェック
 
-修正後に `/doc-check` を再実行し、不整合が解消されたことを確認する。
+修正後にスキル `/doc-check` を実行し、不整合が解消されたことを確認する。
 
 ## 注意
 

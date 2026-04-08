@@ -33,7 +33,7 @@ git log --oneline HEAD..origin/main
 
 ### 3. バックアップブランチを作成する
 
-rebase 前に `/backup-branch` で現在の状態を保存する。
+rebase 前にスキル `/backup-branch` を実行して現在の状態を保存する。
 
 ### 4. rebase を開始する
 
@@ -75,7 +75,7 @@ rebase 前後でコミット数が変わっていないことを確認する。
 
 ### 6. PR コメント
 
-PR が存在する場合、`/pr-progress` に委譲して catch-up の差分コメントを投稿する。
+PR が存在する場合、スキル `/pr-progress` を実行して catch-up の差分コメントを投稿する。
 
 ## 注意
 
