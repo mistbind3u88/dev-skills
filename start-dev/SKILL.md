@@ -1,12 +1,12 @@
 ---
 name: start-dev
 description: 新しい作業ブランチを作成し、Issue/PR の情報取得やタスクドキュメント確認を含む作業開始の準備を行う。
-allowed-tools: Bash(git switch:*) Bash(git branch:*) Bash(git status:*) Bash(git rev-parse:*) Bash(git fetch:*) Bash(git pull:*) Read
+allowed-tools: Bash(git switch:*) Bash(git branch:*) Bash(git status:*) Bash(git rev-parse:*) Bash(git fetch:*) Bash(git pull:*) Bash(git worktree:*) Read
 ---
 
 # start-dev スキル
 
-新しい作業を開始する準備を行う。ブランチ作成、Issue/PR の情報取得、タスクドキュメント確認をまとめて実施する。
+新しい作業を開始する準備を行う。ブランチ作成、worktree セットアップ、Issue/PR の情報取得、タスクドキュメント確認をまとめて実施する。
 
 ## 引数
 
@@ -33,6 +33,7 @@ git rev-parse --abbrev-ref HEAD
 
 - 未コミットの変更がある場合はコミットを促して停止する
 - 現在のブランチを確認する
+- **作業ブランチにいる場合**（main/master 以外）: スキル `/takeover` に委譲して終了する
 
 ### 2. Issue/PR の情報取得
 
@@ -49,33 +50,48 @@ git rev-parse --abbrev-ref HEAD
   - 日本語の場合は内容を英語の slug に変換する（例: `棚卸し手順のskill化` → `f/tanaoroshi-skill`）
 - **ブランチ名が直接指定された場合**: そのまま使用する
 
-### 4. main/master を最新化してブランチ作成
-
-特別な指示がない限り、main/master を最新化してからブランチを切る。
+### 4. main/master を最新化して worktree 作成
 
 ```bash
 git switch main
 git pull --ff-only origin main
-git switch -c <ブランチ名>
+git worktree add ~/Workspace/worktree/<repo>/<ブランチ名> -b <ブランチ名>
 ```
 
 main への pull が fast-forward できない場合はユーザーに報告して停止する。
 
+worktree のパスは `~/Workspace/worktree/<repo>/<ブランチ名>` とする（`<repo>` は現在のリポジトリ名）。
+
 ### 5. タスクドキュメント確認
 
-worktree の場合は元ディレクトリの `.claude/docs` 配下に関連するタスクドキュメントがあるか確認する。
+元ディレクトリの `.claude/docs` 配下に関連するタスクドキュメントがあるか確認する。
 
 関連するドキュメントがあれば内容を提示する。
 
-### 6. 作業概要の提示
+### 6. プランニング（Issue が指定され、対応内容が明確な場合）
+
+Issue の内容から対応内容が明確に読み取れる場合（再現手順・期待動作が書かれている、変更すべき箇所が特定できるなど）、プランモードに入り実装計画を作成する。
+
+プランには以下を含める:
+
+- 変更対象のファイル・関数
+- 変更の方針（何をどう変えるか）
+- テスト方針（どう検証するか）
+
+対応内容が曖昧な場合（議論 Issue、調査が必要など）はプランニングをスキップする。
+
+### 7. 作業概要の提示
 
 以下を表示して作業開始の準備完了を報告する:
 
-- 作成したブランチ名
+- 作成したブランチ名と worktree パス
 - Issue/PR の概要（取得した場合）
 - 確認すべきタスクドキュメント（存在する場合）
+- 実装計画（作成した場合）
+
+Claude Code のセッションは起動ディレクトリに紐づくため、worktree での作業はユーザーに新しいセッションの起動を案内する。
 
 ## 注意
 
-- このスキルはブランチ作成と情報取得のみを行う。コードの変更は行わない
+- このスキルはブランチ作成・情報取得・プランニングまでを行う。コードの変更は行わない
 - Issue/PR の作成・更新はスキル `/gh-edit` で行う
