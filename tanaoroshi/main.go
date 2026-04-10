@@ -75,17 +75,27 @@ func collect(repos []string) {
 // summary reads collect JSON and outputs a compact summary without body.
 func summary(args []string) {
 	data := readInput(args)
+	ignore := loadIgnoreList()
 
+	ignored := 0
 	result := map[string]any{}
 	for repo, val := range data {
 		rv, ok := val.(map[string]any)
 		if !ok {
 			continue
 		}
+		issues := toSlice(rv["issues"])
+		prs := toSlice(rv["prs"])
+		filteredIssues := filterIgnored(issues, ignore, repo)
+		filteredPRs := filterIgnored(prs, ignore, repo)
+		ignored += len(issues) - len(filteredIssues) + len(prs) - len(filteredPRs)
 		result[repo] = map[string]any{
-			"issues": stripBodies(toSlice(rv["issues"])),
-			"prs":    stripBodies(toSlice(rv["prs"])),
+			"issues": stripBodies(filteredIssues),
+			"prs":    stripBodies(filteredPRs),
 		}
+	}
+	if ignored > 0 {
+		fmt.Fprintf(os.Stderr, "[info] ignored %d item(s) from %s\n", ignored, ignoreFile)
 	}
 
 	writeJSON(result)
@@ -119,6 +129,7 @@ var (
 // refs reads collect JSON and extracts unique cross-references.
 func refs(args []string) {
 	data := readInput(args)
+	ignore := loadIgnoreList()
 
 	seen := map[string]bool{}
 	type refEntry struct {
@@ -143,6 +154,9 @@ func refs(args []string) {
 					continue
 				}
 				number := jsonNumber(m["number"])
+				if isIgnored(ignore, repo, number) {
+					continue
+				}
 				source := fmt.Sprintf("%s#%s", repo, number)
 
 				extracted := extractRefs(body, repo)
@@ -156,6 +170,9 @@ func refs(args []string) {
 		}
 	}
 
+	if entries == nil {
+		entries = []refEntry{}
+	}
 	writeJSON(entries)
 }
 
@@ -338,6 +355,43 @@ func ghView(kind, repo, number, fields string) map[string]any {
 		return nil
 	}
 	return data
+}
+
+const ignoreFile = "skills/tanaoroshi/ignore"
+
+func loadIgnoreList() map[string]bool {
+	b, err := os.ReadFile(ignoreFile)
+	if err != nil {
+		return map[string]bool{}
+	}
+	m := map[string]bool{}
+	for line := range strings.SplitSeq(string(b), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		m[line] = true
+	}
+	return m
+}
+
+func isIgnored(ignore map[string]bool, repo, number string) bool {
+	return ignore[fmt.Sprintf("%s#%s", repo, number)]
+}
+
+func filterIgnored(items []any, ignore map[string]bool, repo string) []any {
+	out := make([]any, 0, len(items))
+	for _, item := range items {
+		m, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+		if isIgnored(ignore, repo, jsonNumber(m["number"])) {
+			continue
+		}
+		out = append(out, item)
+	}
+	return out
 }
 
 func writeJSON(v any) {

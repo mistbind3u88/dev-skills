@@ -36,6 +36,10 @@ allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Agent, 
 2. CLAUDE.md または AGENTS.md の「関連リポジトリ」セクションからリポジトリ名を抽出する
 3. カレントリポジトリ + 関連リポジトリを対象とする
 
+### 無視リスト
+
+`skills/tanaoroshi/ignore` にリストされた Issue/PR は `summary`・`refs` の出力から自動的に除外される。棚卸し対象外にしたい Issue/PR がある場合はこのファイルに追記する。
+
 ### Phase 1: データ収集
 
 `collect` で各リポジトリの Open Issue/PR を一括取得し、ファイルに保存する。
