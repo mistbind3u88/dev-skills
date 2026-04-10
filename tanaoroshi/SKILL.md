@@ -38,7 +38,7 @@ allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Agent, 
 
 ### 無視リスト
 
-`skills/tanaoroshi/ignore` にリストされた Issue/PR は `summary`・`refs` の出力から自動的に除外される。棚卸し対象外にしたい Issue/PR がある場合はこのファイルに追記する。
+`skills/tanaoroshi/ignore` にリストされた Issue/PR は `summary`・`refs` の出力から自動的に除外される。棚卸し対象外にしたい Issue/PR がある場合はこのファイルに追記する。形式は `.gitignore` のコメント規則に準拠し、`#` で始まる行はコメントとして扱う。
 
 ### Phase 1: データ収集
 
