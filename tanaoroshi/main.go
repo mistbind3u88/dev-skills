@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -30,6 +31,12 @@ func main() {
 		refs(os.Args[2:])
 	case "resolve":
 		resolve(os.Args[2:])
+	case "comments":
+		if len(os.Args) < 3 {
+			fmt.Fprintln(os.Stderr, "usage: go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]")
+			os.Exit(1)
+		}
+		comments(os.Args[2:])
 	default:
 		printUsage()
 		os.Exit(1)
@@ -43,6 +50,7 @@ func printUsage() {
 	fmt.Fprintln(os.Stderr, "  summary                                      Compact summary without body (stdin)")
 	fmt.Fprintln(os.Stderr, "  refs                                         Extract cross-references from body (stdin)")
 	fmt.Fprintln(os.Stderr, "  resolve --issues <owner/repo:N> --prs <ref>  Check status of referenced items")
+	fmt.Fprintln(os.Stderr, "  comments <owner/repo:N> [...]               Fetch issue/review comments")
 }
 
 // collect fetches open issues and PRs for each repo.
@@ -355,6 +363,95 @@ func ghView(kind, repo, number, fields string) map[string]any {
 		return nil
 	}
 	return data
+}
+
+// comments fetches comments for specified issues/PRs.
+// For PRs, both issue comments and review comments are fetched and merged by time.
+// Args: owner/repo:N [owner/repo:N ...]
+func comments(args []string) {
+	type comment struct {
+		Author    string `json:"author"`
+		Body      string `json:"body"`
+		CreatedAt string `json:"createdAt"`
+		Type      string `json:"type"` // "comment" or "review"
+	}
+	type entry struct {
+		Repo     string    `json:"repo"`
+		Number   string    `json:"number"`
+		Comments []comment `json:"comments"`
+	}
+
+	var entries []entry
+	for _, arg := range args {
+		repo, number := parseRef(arg)
+		if repo == "" || number == "" {
+			fmt.Fprintf(os.Stderr, "[warn] invalid ref: %s (expected owner/repo:N)\n", arg)
+			continue
+		}
+
+		var all []comment
+
+		// Fetch issue comments (paginated, up to 100)
+		issueEndpoint := fmt.Sprintf("repos/%s/issues/%s/comments?per_page=100", repo, number)
+		if out, err := exec.Command("gh", "api", issueEndpoint).Output(); err == nil {
+			var raw []map[string]any
+			if json.Unmarshal(out, &raw) == nil {
+				for _, c := range raw {
+					all = append(all, extractComment(c, "comment"))
+				}
+			}
+		}
+
+		// Fetch PR review comments (fails silently for issues)
+		reviewEndpoint := fmt.Sprintf("repos/%s/pulls/%s/comments?per_page=100", repo, number)
+		if out, err := exec.Command("gh", "api", reviewEndpoint).Output(); err == nil {
+			var raw []map[string]any
+			if json.Unmarshal(out, &raw) == nil {
+				for _, c := range raw {
+					all = append(all, extractComment(c, "review"))
+				}
+			}
+		}
+
+		// Sort chronologically
+		sort.Slice(all, func(i, j int) bool {
+			return all[i].CreatedAt < all[j].CreatedAt
+		})
+
+		entries = append(entries, entry{Repo: repo, Number: number, Comments: all})
+	}
+
+	if entries == nil {
+		entries = []entry{}
+	}
+	writeJSON(entries)
+}
+
+func extractComment(c map[string]any, typ string) struct {
+	Author    string `json:"author"`
+	Body      string `json:"body"`
+	CreatedAt string `json:"createdAt"`
+	Type      string `json:"type"`
+} {
+	author := ""
+	if u, ok := c["user"].(map[string]any); ok {
+		if login, ok := u["login"].(string); ok {
+			author = login
+		}
+	}
+	body, _ := c["body"].(string)
+	createdAt, _ := c["created_at"].(string)
+	return struct {
+		Author    string `json:"author"`
+		Body      string `json:"body"`
+		CreatedAt string `json:"createdAt"`
+		Type      string `json:"type"`
+	}{
+		Author:    author,
+		Body:      body,
+		CreatedAt: createdAt,
+		Type:      typ,
+	}
 }
 
 const ignoreFile = "skills/tanaoroshi/ignore"

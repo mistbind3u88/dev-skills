@@ -1,6 +1,6 @@
 ---
 name: tanaoroshi
-description: 複数GitHubリポジトリのOpen Issue/PRを横断的に棚卸しする。body精査・前提作業の完了状況確認・テーマ別の構造整理・アクション提案を行う。
+description: 複数GitHubリポジトリのOpen Issue/PRを横断的に棚卸しする。body精査・コメント確認・前提作業の完了状況確認・テーマ別の構造整理・アクション提案を行う。
 allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Agent, Read
 ---
 
@@ -80,6 +80,31 @@ go run ./skills/tanaoroshi resolve \
   --issues <owner/repo:N> [owner/repo:N ...] \
   --prs <owner/repo:N> [owner/repo:N ...]
 ```
+
+### Phase 2a: 直近コメントの確認
+
+直近で更新のあった Open Issue/PR について、最新のコメントを確認する。
+
+1. `summary` の出力から `updatedAt` が直近2週間以内の Issue/PR を抽出する
+2. 該当する Issue/PR のコメントを `comments` サブコマンドで取得する
+
+```bash
+go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
+```
+
+- Issue コメントと PR レビューコメントを時系列でマージして返す
+- 出力の各コメントには `type` フィールド（`"comment"` = Issue コメント、`"review"` = PR レビューコメント）が付与される
+- コメント内容は Phase 3 のテーマ整理で「進捗」「ブロッカー」「方針変更」の判断材料にする
+
+### Phase 2b: リリース PR の分離
+
+テーマ整理の前に、リリース PR を識別して分離する。以下のいずれかに該当する PR はリリース PR として扱う:
+
+- タイトルに `release` / `Release` / `v0.0.0` 等のバージョン番号パターンを含む
+- 作成者が bot（`dependabot`, `renovate`, `github-actions`, `release-please` 等）
+- ラベルに `release` / `autorelease` を含む
+
+リリース PR は Phase 3 のテーマ整理に含めず、Phase 4 のサマリーで「リリース運用」として別セクションにまとめる。
 
 ### Phase 3: テーマ別構造整理
 
@@ -164,4 +189,4 @@ go run ./skills/tanaoroshi resolve \
 ## 注意
 
 - Closed の前提作業は「何が完了したか」の事実のみ記載し、詳細な説明は省く
-- リリース PR（bot 自動生成）は個別テーマに含めず、リリース運用として別セクションにまとめる
+- リリース PR は Phase 2b で分離し、個別テーマに含めない。Phase 4 のサマリーで「リリース運用」として別セクションにまとめる
