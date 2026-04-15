@@ -1,12 +1,12 @@
 ---
 name: issue-review
-description: 古い Issue を現在のコードベースと照合し、問題の現存・実害・対応価値を判定する。
-allowed-tools: Bash(gh issue view:*), Bash(git log:*), Bash(git show:*), Bash(git diff:*), Read, Glob, Grep
+description: Issue を現在のコードベースと照合し、問題の現存・実害・対応価値を判定する。
+allowed-tools: Bash(gh issue view:*), Bash(git log:*), Bash(git show:*), Read, Glob, Grep
 ---
 
-# Issue 鮮度分析
+# Issue 有効性分析
 
-古い Issue を現在のコードベースと照合し、問題がまだ有効か、対応する価値が残っているかを判定する。
+Issue を現在のコードベースと照合し、問題がまだ有効か、対応する価値が残っているかを判定する。
 
 ## 入力
 
