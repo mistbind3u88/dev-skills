@@ -44,19 +44,20 @@ gh pr view <number> --json number,url,title,body,state,author,baseRefName,headRe
 #### Issue の場合
 
 ```bash
-gh issue view <number> --json number,url,title,body,state,author,labels,assignees
+gh issue view <number> --json number,url,title,body,state,author,labels,assignees,comments
 ```
 
 取得フィールド:
 
-| フィールド      | 内容             |
-| --------------- | ---------------- |
-| `number`, `url` | 識別情報         |
-| `title`, `body` | タイトルと概要欄 |
-| `state`         | open / closed    |
-| `author`        | 作成者           |
-| `labels`        | ラベル           |
-| `assignees`     | アサイン         |
+| フィールド      | 内容                           |
+| --------------- | ------------------------------ |
+| `number`, `url` | 識別情報                       |
+| `title`, `body` | タイトルと概要欄               |
+| `state`         | open / closed                  |
+| `author`        | 作成者                         |
+| `labels`        | ラベル                         |
+| `assignees`     | アサイン                       |
+| `comments`      | コメント一覧（補足情報・議論） |
 
 Issue にリンク済みの PR を取得する場合:
 
