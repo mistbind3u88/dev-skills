@@ -1,17 +1,16 @@
 ---
 name: backup-branch
 description: 現在の HEAD のバックアップブランチを作成する。rebase や autosquash の前に使う。
-allowed-tools: Bash($SKILL_DIR/backup.sh:*)
 ---
 
 # backup スキル
 
-現在の HEAD を指すバックアップブランチを作成する。
+現在の HEAD を指すバックアップブランチを作成する。`backup.sh` は PATH 上に配置されている必要がある。
 
 ## 実行
 
 ```bash
-"$SKILL_DIR/backup.sh"
+backup.sh
 ```
 
 作成されたバックアップブランチ名が標準出力に返される。

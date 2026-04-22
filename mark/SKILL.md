@@ -1,7 +1,6 @@
 ---
 name: mark
 description: チェック通過を示すローカル軽量タグを現在の HEAD に設置・確認・削除する。
-allowed-tools: Bash($SKILL_DIR/mark.sh:*)
 ---
 
 # mark スキル
@@ -23,24 +22,24 @@ mark/<branch>/<type>
 
 ## 手順
 
-`$SKILL_DIR/mark.sh` を使って操作する。
+`mark.sh` を使って操作する。PATH 上に配置されている必要がある。
 
 ### タグを設置する
 
 ```bash
-"$SKILL_DIR/mark.sh" <type>
+mark.sh <type>
 ```
 
 ### 状態を確認する
 
 ```bash
-"$SKILL_DIR/mark.sh" --status
+mark.sh --status
 ```
 
 ### 全タグを削除する
 
 ```bash
-"$SKILL_DIR/mark.sh" --clean
+mark.sh --clean
 ```
 
 ## 注意
