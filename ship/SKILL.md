@@ -18,7 +18,7 @@ allowed-tools: ""
 
 ### 2. `/check`
 
-未チェック項目（lint・build・test・review）を実行する。
+未チェック項目を実行する。チェック対象はスキル `/check` 側で管理する。
 
 ### 3. `/push`
 

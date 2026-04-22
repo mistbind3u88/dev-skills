@@ -76,4 +76,4 @@ git status -s
 
 - `git add -A` や `git add .` は使わない。修正したファイルを明示的に指定する
 - `$ARGUMENTS` に `--autosquash` が指定された場合は fixup コミット作成後に autosquash を実行する。指定がない場合は fixup コミットの作成のみで終了する
-- autosquash 後はコミットメッセージの見直しと品質チェック（lint・build・test）を行い、成功したらスキル `/mark` を実行してタグを設置する
+- autosquash 後はコミットメッセージを見直した上でスキル `/check --skip-review` を実行する（成功時に `/mark` でタグが設置される）

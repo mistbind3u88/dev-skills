@@ -1,12 +1,12 @@
 ---
 name: push
-description: lint・build・test・codex review の通過を確認してから git push する。
+description: /check の通過を確認してから git push する。
 allowed-tools: Bash(git status:*) Bash(git log:*) Bash(git rev-parse:*) Bash(git push:*) Bash(gh pr view:*)
 ---
 
 # push スキル
 
-lint・build・test が通り、codex review 済みであることを確認してから push する。
+`/check` が通過していることを確認してから push する。
 
 ## 手順
 

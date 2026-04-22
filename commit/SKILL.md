@@ -29,16 +29,12 @@ git log --oneline -5
 
 変更が小さい、または単一の関心事に収まる場合はそのままコミットする。
 
-変更が大きい場合は、レイヤ構成（domain → infra → usecase → entrypoint、または設定 → ロジック → テスト）に応じて段階的にコミットする。各コミットは以下を満たすこと:
-
-- コンパイルが通る
-- lint が通る（プロジェクトに lint がある場合）
-- 可能な限りテストが通る
+変更が大きい場合は、レイヤ構成（domain → infra → usecase → entrypoint、または設定 → ロジック → テスト）に応じて段階的にコミットする。各コミットはスキル `/check` の各チェックを通過できる状態にする（具体的な検査項目は `/check` 側で管理する）。
 
 段階的コミットの際は `git add <ファイル>` で対象を選択し、1 段階ずつコミットする。各コミットの検証手順:
 
 1. `git stash --keep-index --include-untracked` で未ステージの変更を退避
-2. `/check --skip-review` で lint・build・test を実行（成功時に `/mark` でタグ設置される）
+2. `/check --skip-review` を実行する（成功時に `/mark` でタグが設置される）
 3. コミット
 4. `git stash pop` で退避した変更を復元（コンフリクトした場合は `git restore` で HEAD に戻し stash を drop）
 
@@ -112,13 +108,13 @@ git merge-base main HEAD
 GIT_SEQUENCE_EDITOR=: git rebase --autosquash --rebase-merges <上のコマンドで確認したハッシュ>
 ```
 
-- コンフリクト解消時は、あるコミットに対する全ての fixup が squash された段階（= そのコミットが完成した状態）で lint・build・test を実行して通過を確認する。途中の fixup 適用中はビルドが通らない場合があるため、同一コミットへの fixup が連続する間はスキップしてよい
+- コンフリクト解消時は、あるコミットに対する全ての fixup が squash された段階（= そのコミットが完成した状態）でスキル `/check --skip-review` を実行して通過を確認する。途中の fixup 適用中はビルドが通らない場合があるため、同一コミットへの fixup が連続する間はスキップしてよい
 
 ## 注意
 
 - main/master ブランチ上で直接コミットしない。コミット前に現在のブランチを確認し、main/master であれば作業ブランチを切ってから作業する
 - `git add -A` や `git add .` は使わない。ファイルを明示的に指定する
-- 段階的コミットの品質検証は手順2-Aに従う。`/check --skip-review` が lint・build・test の実行と `/mark` でのタグ設置を行う
+- 段階的コミットの品質検証は手順2-Aに従う。チェック項目と実行は `/check --skip-review` に委譲し、成功時に `/mark` がタグを設置する
 - amend 後に force push が必要な場合はユーザーに確認する
 - push はユーザーが明示的に指示しない限り行わない
 - コミット後の PR 作成・更新はスキル `/gh-edit`、push はスキル `/push` で行う
