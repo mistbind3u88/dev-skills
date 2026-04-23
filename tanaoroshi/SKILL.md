@@ -127,17 +127,22 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 **ゴール**: このテーマで達成しようとしていること（1-2文）
 
-  [OPEN] タイトル owner/repo#125
-    └─ [OPEN/Draft] タイトル owner/repo#126
-  [CLOSED] タイトル（完了日） owner/repo#123
-    ├─ [CLOSED] タイトル（完了日） owner/repo#124
+  [PR/OPEN] タイトル @author → レビュワー: レビュー [owner/repo#125](https://github.com/owner/repo/issues/125)
+    └─ [PR/Draft] タイトル @author → 作者: 下書き完成 [owner/repo#126](https://github.com/owner/repo/issues/126)
+  [Issue/OPEN] タイトル @author → @assignee: 実装 [owner/repo#127](https://github.com/owner/repo/issues/127)
+  [PR/CLOSED] タイトル（完了日） [owner/repo#123](https://github.com/owner/repo/issues/123)
+    ├─ [Issue/CLOSED] タイトル（完了日） [owner/repo#124](https://github.com/owner/repo/issues/124)
 
 **進捗**: 要約と次のアクション
 ```
 
+- 行頭の種別プレフィックスは `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` のいずれかを必ず付ける（merged PR は `[PR/CLOSED]` として扱う）
+- Open の PR はタイトル直後に `@author` を付ける。Issue は assignee がいる場合 `@author → @assignee` と書く
+- Open の行末（リンクの前）には `→ <主体>: <アクション>` を付ける。判定ルールは末尾「ネクストアクション主体の判定ルール」節を参照
+- Closed は主体注釈を付けない（完了済みのため）
 - Open は詳しく（タイトル・残件内容・ブロッカーの有無・`owner/repo#N`）
 - Closed は簡潔に（タイトル・完了日・`owner/repo#N`）
-- リンク（`owner/repo#N`）はタイトルの後に置く
+- リンク（`owner/repo#N`）は行末に置く
 
 #### 3-3. テーマに属さない個別 Issue
 
@@ -159,32 +164,83 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 #### 4-2. アクション提案
 
-以下の 3 カテゴリに分けて提案する。
+以下の 3 カテゴリに分けて提案する。各箇条書きには `[主体]` タグ（`[マージ担当]` / `[レビュワー]` / `[作者]` / `[@assignee]` / `[チーム]` / `[未アサイン]` 等）を前置し、その後に `[Issue/…]` または `[PR/…]` と `@author`・リンクを続ける。例:
+
+```
+- [マージ担当] [PR/OPEN] タイトル @author [owner/repo#N](https://github.com/owner/repo/issues/N)
+- [レビュワー] [PR/OPEN] タイトル @author [owner/repo#N](https://github.com/owner/repo/issues/N)
+- [作者] [PR/OPEN] タイトル @author [owner/repo#N](https://github.com/owner/repo/issues/N)
+```
 
 **すぐ対応できるもの**:
 
-- APPROVED 済みでマージ可能な PR
-- 前提作業の完了によりクローズ可能な Issue
-- 上位 Issue に統合してクローズ可能な Issue
+- `[マージ担当]` APPROVED 済みでマージ可能な PR
+- `[クローズ担当]` 前提作業の完了によりクローズ可能な Issue
+- `[クローズ担当]` 上位 Issue に統合してクローズ可能な Issue
 
 **着手可能になったもの**:
 
-- 前提の Closed により実装基盤が整った Issue/PR
-- Draft PR のうち、依存がすべて解決済みのもの
+- `[@assignee]`/`[未アサイン]` 前提の Closed により実装基盤が整った Issue/PR
+- `[作者]` Draft PR のうち、依存がすべて解決済みのもの
 
 **方針合意が必要なもの**:
 
-- 議論 Issue で方針未決のもの
-- クロスリポジトリで方針が対立しているもの
-- 長期放置（3ヶ月以上）で必要性の再評価が必要なもの
+- `[チーム]` 議論 Issue で方針未決のもの
+- `[チーム]` クロスリポジトリで方針が対立しているもの
+- `[オーナー要判断]` 長期放置（3ヶ月以上）で必要性の再評価が必要なもの
 
 ## 出力の共通ルール
 
-- **Issue/PR への言及は、タイトル末尾・本文中・括弧内を問わず、すべて `owner/repo#123` 形式で記載する。`#123` だけではリンクにならない。** 例:「前提の ikyucom/waikiki2-data-transmuter#233 がマージ済み」であり「前提の#233がマージ済み」ではない。範囲指定（`#256〜#258`）や列挙（`#204, #205`）も個別に完全形式で書く
-- リンクはタイトルの後に置く
+- **Issue/PR への言及は、タイトル末尾・本文中・括弧内を問わず、すべて `[owner/repo#N](https://github.com/owner/repo/issues/N)` 形式のクリッカブルリンクで記載する。`#N` や `owner/repo#N` だけの素の表記ではターミナル上でリンクにならない。** 範囲指定（`#256〜#258`）や列挙（`#204, #205`）も個別に完全形式で書く
+- **種別プレフィックス** `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` を必ず行頭に付ける（merged PR は `[PR/CLOSED]`）
+- **Open の PR** はタイトル直後に `@author` を付ける。**Open の Issue** は assignee がいる場合 `@author → @assignee`、いない場合 `@author` を付ける
+- **Open の行末** には `→ <主体>: <アクション>` を付ける（判定ルールは下の「ネクストアクション主体の判定ルール」を参照）。Closed は付けない
+- リンクは行末に置く
 - テーマ別ツリー、個別 Issue 一覧、サマリー表、アクション提案のいずれでも同じ形式を適用する
 - Open を先に、Closed を後に記載する
 - PR の状態は Closed に統一する（Merged も Closed として扱う）
+
+## ネクストアクション主体の判定ルール
+
+Open の Issue/PR 各行の行末に付ける `→ <主体>: <アクション>` は以下の基準で決める。判定に必要な `isDraft` / `reviewDecision` / `assignees` / ラベルは `summary` の出力に含まれる。必要なら `comments` で直近コメントの向き先を補足する。
+
+### PR
+
+**主判定**（`summary` だけで決定する。上の行から評価し、最初に一致した行を採用する）:
+
+| 優先 | 条件                                                | 主体: アクション       |
+| ---- | --------------------------------------------------- | ---------------------- |
+| 1    | `isDraft=true`                                      | `作者: 下書き完成`     |
+| 2    | `reviewDecision="APPROVED"`                         | `マージ担当: マージ可` |
+| 3    | `reviewDecision="CHANGES_REQUESTED"`                | `作者: 指摘対応`       |
+| 4    | `reviewDecision="REVIEW_REQUIRED"` または空・未設定 | `レビュワー: レビュー` |
+
+**補足判定**（任意）: `comments` を取得済みの場合に限り、以下で主判定の結果を上書きしてよい。判別できない場合は主判定の結果をそのまま使う。
+
+- 直近コメントの投稿者が作者以外 → `作者: 再プッシュ`
+- 直近コメントの投稿者が作者 → `レビュワー: 再レビュー`
+
+### Issue
+
+上の行から評価し、最初に一致した行を採用する（`assignees` が優先）。
+
+| 優先 | 条件                                  | 主体: アクション         |
+| ---- | ------------------------------------- | ------------------------ |
+| 1    | `assignees` あり                      | `@assignee: 実装/調査`   |
+| 2    | 議論系ラベル（`discussion` 等）を持つ | `チーム: 方針合意`       |
+| 3    | 上記以外                              | `未アサイン: トリアージ` |
+
+### アクション提案（Phase 4-2）の主体タグ
+
+アクション提案セクションでは行頭に `[主体]` タグを付ける（上記の「主体」を `[…]` で囲んだ形）。代表例:
+
+- `[マージ担当]` — APPROVED 済み PR のマージを待っている
+- `[レビュワー]` — レビュー・再レビューを待っている
+- `[作者]` — 下書き完成・指摘対応・再プッシュを待っている
+- `[@assignee]` — 指名済みの担当者の実装/調査を待っている
+- `[チーム]` — 方針合意を待っている
+- `[クローズ担当]` — クローズ判断を待っている
+- `[オーナー要判断]` — 長期放置で必要性の再評価が必要
 
 ## 注意
 
