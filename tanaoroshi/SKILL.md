@@ -120,29 +120,61 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 #### 3-2. 各テーマの出力形式
 
-テーマごとに以下を整理する。Open を先に、Closed を後に記載する:
+テーマごとに以下を整理する。テーマを大見出し、トップレベル Issue（または上位目標）を小見出しにし、その配下に関係ツリーを置く。
 
 ```
 ## N. テーマ名
 
 **ゴール**: このテーマで達成しようとしていること（1-2文）
 
-  [PR/OPEN] タイトル @author → レビュワー: レビュー [owner/repo#125](https://github.com/owner/repo/issues/125)
-    └─ [PR/Draft] タイトル @author → 作者: 下書き完成 [owner/repo#126](https://github.com/owner/repo/issues/126)
-  [Issue/OPEN] タイトル @author → @assignee: 実装 [owner/repo#127](https://github.com/owner/repo/issues/127)
-  [PR/CLOSED] タイトル（完了日） [owner/repo#123](https://github.com/owner/repo/issues/123)
-    ├─ [Issue/CLOSED] タイトル（完了日） [owner/repo#124](https://github.com/owner/repo/issues/124)
+### [Issue/OPEN] 親課題タイトル [owner/repo#127](https://github.com/owner/repo/issues/127)
+
+（author: @author / assignee: @assignee / next: 実装）
+
+- 実装: [PR/OPEN] タイトル [owner/repo#125](https://github.com/owner/repo/issues/125)（author: @author / next: レビュー）
+  ├─ 前提: [PR/CLOSED] タイトル [owner/repo#123](https://github.com/owner/repo/issues/123)（closed: YYYY-MM-DD）
+  ├─ ブロッカー: [Issue/OPEN] タイトル [owner/repo#124](https://github.com/owner/repo/issues/124)（author: @author / next: 方針合意）
+  └─ 後続: [Issue/OPEN] タイトル [owner/repo#128](https://github.com/owner/repo/issues/128)（author: @author / next: 優先度判断）
+- 関連: [Issue/OPEN] 親課題に直接関連する別Issue [owner/repo#130](https://github.com/owner/repo/issues/130)（author: @author / next: 優先度判断）
+
+### [上位目標] 親 Issue がない作業単位の短い説明
+
+- 実装: [PR/Draft] タイトル [owner/repo#129](https://github.com/owner/repo/issues/129)（author: @author / next: 下書き完成）
+  └─ 代替: [PR/OPEN] 同じ目的の別PR [owner/repo#131](https://github.com/owner/repo/issues/131)（author: @author / next: レビュー）
+- 関連: [Issue/OPEN] 上位目標に直接関連するIssue [owner/repo#132](https://github.com/owner/repo/issues/132)（author: @author / next: 優先度判断）
 
 **進捗**: 要約と次のアクション
 ```
 
+- テーマ見出しは `## N. テーマ名` とし、例: `## 1. Google HPA / フィード品質`
+- トップレベル Issue は必ず `### [Issue/OPEN] タイトル [owner/repo#N](...)` の小見出しにする
+- 親 Issue がない作業単位は `### [上位目標] 短い説明` の小見出しにする
+- 小見出し直下にトップレベル Issue の後置メタ情報を 1 行で置く。ツリー内に同じトップレベル Issue を再掲しない
+- 小見出しに直接関連する PR/Issue は第1階層の通常リスト（`-`）に置く。第1階層では `├─` / `└─` を使わない
+- 第1階層の PR/Issue に関連する前提・ブロッカー・後続・代替・関連は第2階層のツリー（`  ├─` / `  └─`）に置く
+- 小見出し自体に直接関係する前提・ブロッカー・後続は第1階層の通常リストに置いてよい。特定の PR/Issue にだけ紐づくものを第1階層へ混ぜない
+- `直接対応` や `関係ツリー` のような中間見出しは出さない。直接関連か間接関連かはツリーの深さで表す
+- ツリー行は `種別プレフィックス + タイトル + リンク + 後置メタ情報` の順で書く。`@author` / `assignee` / `next` はタイトル直後に置かず、行末の括弧内に回す
+- 後置メタ情報は Open では `（author: @author / assignee: @assignee / next: 実装）`、Closed では `（closed: YYYY-MM-DD）` を基本形にする。assignee がない場合は省略する
+- ツリーの子要素には関係ラベルを必ず付ける。ラベルは増やしすぎず、関係が一目で分かる以下に絞る
+- `実装`: 親 Issue を直接解決する PR、または実装本体の Issue/PR
+- `前提`: これが完了しないと親・後続に進みにくい Issue/PR。完了状態は `[PR/CLOSED]` / `[Issue/CLOSED]` と `closed` メタ情報で表現し、ラベルには含めない
+- `ブロッカー`: 方針未決、レビュー停滞、外部依存など、現在進行を止めている Issue/PR
+- `後続`: 親または前提完了後に着手する Issue/PR
+- `代替`: 同じ目的の別 PR、作り直し PR、競合する解決案
+- `関連`: 親子・前後関係までは断定できないが、同じテーマとして把握すべき Issue/PR
+- 迷った場合は `関連` を使う。細かい作業種別（docs/refactor/test など）をラベル化せず、タイトルと種別プレフィックスで表現する
+- 1 つの根に子要素が多すぎる場合は、重要な 3-6 件に絞り、残りは `└─ その他: N件` として要約する
+- 判定できない項目を無理に親子化しない。根拠が弱い場合は別の `[上位目標]` ツリーに分ける
+- body の `closes` / `fixes` / 明示リンクは最優先で親子関係に使う。次にブランチ名・タイトル類似・コメント文脈で補完する
+- クロスリポジトリ関係は同じ作業単位に含め、リポジトリごとに分断しない
+- 1 つのテーマに Open が 10 件を超える場合は、全件列挙よりも相関が分かるツリーを優先し、低優先の独立 Issue は「その他」にまとめる
 - 行頭の種別プレフィックスは `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` のいずれかを必ず付ける（merged PR は `[PR/CLOSED]` として扱う）
-- Open の PR はタイトル直後に `@author` を付ける。Issue は assignee がいる場合 `@author → @assignee` と書く
-- Open の行末（リンクの前）には `→ <主体>: <アクション>` を付ける。判定ルールは末尾「ネクストアクション主体の判定ルール」節を参照
+- Open の PR/Issue はタイトル直後に `@author` や `→ <主体>: <アクション>` を置かない。担当・次アクションは後置メタ情報の `author` / `assignee` / `next` にまとめる
 - Closed は主体注釈を付けない（完了済みのため）
 - Open は詳しく（タイトル・残件内容・ブロッカーの有無・`owner/repo#N`）
 - Closed は簡潔に（タイトル・完了日・`owner/repo#N`）
-- リンク（`owner/repo#N`）は行末に置く
+- リンク（`owner/repo#N`）はタイトル直後に置き、その後に後置メタ情報を書く
 
 #### 3-3. テーマに属さない個別 Issue
 
@@ -156,20 +188,20 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 #### 4-1. 進捗サマリー
 
-テーマごとの Open 数・Closed 数・進捗状況を表形式で出力する。
+テーマごとの Open 数・Closed 数・進捗状況を表形式で出力する。単なる件数だけでなく、テーマ内で次に詰まっている関係を `詰まり` に明記する。
 
-| テーマ   | Open | Closed | 進捗 |
-| -------- | :--: | :----: | ---- |
-| テーマ名 |  N   |   M    | 要約 |
+| テーマ   | Open | Closed | 詰まり                                         | 進捗 |
+| -------- | :--: | :----: | ---------------------------------------------- | ---- |
+| テーマ名 |  N   |   M    | レビュー待ち / Draft待ち / 方針未決 / 長期放置 | 要約 |
 
 #### 4-2. アクション提案
 
-以下の 3 カテゴリに分けて提案する。各箇条書きには `[主体]` タグ（`[マージ担当]` / `[レビュワー]` / `[作者]` / `[@assignee]` / `[チーム]` / `[未アサイン]` 等）を前置し、その後に `[Issue/…]` または `[PR/…]` と `@author`・リンクを続ける。例:
+以下の 3 カテゴリに分けて提案する。各箇条書きには `[主体]` タグ（`[マージ担当]` / `[レビュワー]` / `[作者]` / `[@assignee]` / `[チーム]` / `[担当未定]` 等）を前置し、その後に `[Issue/…]` または `[PR/…]`、タイトル、リンク、後置メタ情報を続ける。例:
 
 ```
-- [マージ担当] [PR/OPEN] タイトル @author [owner/repo#N](https://github.com/owner/repo/issues/N)
-- [レビュワー] [PR/OPEN] タイトル @author [owner/repo#N](https://github.com/owner/repo/issues/N)
-- [作者] [PR/OPEN] タイトル @author [owner/repo#N](https://github.com/owner/repo/issues/N)
+- [マージ担当] [PR/OPEN] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: マージ可）
+- [レビュワー] [PR/OPEN] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: レビュー）
+- [作者] [PR/Draft] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: 下書き完成）
 ```
 
 **すぐ対応できるもの**:
@@ -180,7 +212,7 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 **着手可能になったもの**:
 
-- `[@assignee]`/`[未アサイン]` 前提の Closed により実装基盤が整った Issue/PR
+- `[@assignee]`/`[担当未定]` 前提の Closed により実装基盤が整った Issue/PR
 - `[作者]` Draft PR のうち、依存がすべて解決済みのもの
 
 **方針合意が必要なもの**:
@@ -189,20 +221,44 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 - `[チーム]` クロスリポジトリで方針が対立しているもの
 - `[オーナー要判断]` 長期放置（3ヶ月以上）で必要性の再評価が必要なもの
 
+#### 4-3. 依存関係サマリー
+
+アクション提案の前後に、テーマ横断で詰まりやすい依存関係を 5-10 件に絞ってツリー形式で出力する。形式は以下:
+
+```
+**依存関係サマリー**
+
+[ブロッカー] [PR/OPEN] A [owner/repo#1](https://github.com/owner/repo/issues/1)（author: @author / next: レビュー）
+└─ blocks: [Issue/OPEN] B [owner/repo#2](https://github.com/owner/repo/issues/2)（author: @author / next: 優先度判断）
+
+[前提] [PR/CLOSED] A [owner/repo#3](https://github.com/owner/repo/issues/3)（closed: YYYY-MM-DD）
+└─ enables: [Issue/OPEN] B [owner/repo#4](https://github.com/owner/repo/issues/4)（author: @author / assignee: @assignee / next: 実装/調査）
+
+[重複/統合候補] [Issue/OPEN] A [owner/repo#5](https://github.com/owner/repo/issues/5)（author: @author / next: 優先度判断）
+└─ overlaps: [Issue/OPEN] B [owner/repo#6](https://github.com/owner/repo/issues/6)（author: @author / next: 優先度判断）
+```
+
+- `blocks` は未完了の前提により後続が進めにくい関係に使う
+- `enables` は Closed/Merged により後続が着手可能になった関係に使う
+- `overlaps` は同じ目的の Issue/PR が併存し、統合判断が必要な関係に使う
+- 関係が推測に留まる場合は `関連` として扱い、断定しない
+
 ## 出力の共通ルール
 
 - **Issue/PR への言及は、タイトル末尾・本文中・括弧内を問わず、すべて `[owner/repo#N](https://github.com/owner/repo/issues/N)` 形式のクリッカブルリンクで記載する。`#N` や `owner/repo#N` だけの素の表記ではターミナル上でリンクにならない。** 範囲指定（`#256〜#258`）や列挙（`#204, #205`）も個別に完全形式で書く
 - **種別プレフィックス** `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` を必ず行頭に付ける（merged PR は `[PR/CLOSED]`）
-- **Open の PR** はタイトル直後に `@author` を付ける。**Open の Issue** は assignee がいる場合 `@author → @assignee`、いない場合 `@author` を付ける
-- **Open の行末** には `→ <主体>: <アクション>` を付ける（判定ルールは下の「ネクストアクション主体の判定ルール」を参照）。Closed は付けない
-- リンクは行末に置く
+- **Open の PR/Issue** はタイトル直後に `@author` や `→ <主体>: <アクション>` を置かない。リンクの後に `（author: ... / assignee: ... / next: ...）` として後置する
+- Closed はリンクの後に `（closed: YYYY-MM-DD）` を付ける
+- リンクはタイトル直後に置く
 - テーマ別ツリー、個別 Issue 一覧、サマリー表、アクション提案のいずれでも同じ形式を適用する
 - Open を先に、Closed を後に記載する
 - PR の状態は Closed に統一する（Merged も Closed として扱う）
+- テーマ内では「リポジトリ別」ではなく「作業単位別」に並べる。リポジトリ境界よりも、Issue/PR の相関と次アクションの見通しを優先する
+- 親子関係がない項目を無理にツリー化しない。推測で親子にすると誤解を招くため、根拠が弱い場合は `関連` と明記する
 
 ## ネクストアクション主体の判定ルール
 
-Open の Issue/PR 各行の行末に付ける `→ <主体>: <アクション>` は以下の基準で決める。判定に必要な `isDraft` / `reviewDecision` / `assignees` / ラベルは `summary` の出力に含まれる。必要なら `comments` で直近コメントの向き先を補足する。
+Open の Issue/PR 各行の後置メタ情報に入れる `next` は以下の基準で決める。判定に必要な `isDraft` / `reviewDecision` / `assignees` / ラベルは `summary` の出力に含まれる。必要なら `comments` で直近コメントの向き先を補足する。
 
 ### PR
 
@@ -224,11 +280,11 @@ Open の Issue/PR 各行の行末に付ける `→ <主体>: <アクション>` 
 
 上の行から評価し、最初に一致した行を採用する（`assignees` が優先）。
 
-| 優先 | 条件                                  | 主体: アクション         |
-| ---- | ------------------------------------- | ------------------------ |
-| 1    | `assignees` あり                      | `@assignee: 実装/調査`   |
-| 2    | 議論系ラベル（`discussion` 等）を持つ | `チーム: 方針合意`       |
-| 3    | 上記以外                              | `未アサイン: トリアージ` |
+| 優先 | 条件                                  | 主体: アクション       |
+| ---- | ------------------------------------- | ---------------------- |
+| 1    | `assignees` あり                      | `@assignee: 実装/調査` |
+| 2    | 議論系ラベル（`discussion` 等）を持つ | `チーム: 方針合意`     |
+| 3    | 上記以外                              | `担当未定: 優先度判断` |
 
 ### アクション提案（Phase 4-2）の主体タグ
 
