@@ -4,9 +4,13 @@
 
 - [git](https://git-scm.com/)
 
-## AGENTS.md / CLAUDE.md の記述スタイル判定基準
+## `allowed-tools` を空にしている理由
 
-`SKILL.md` 手順3 の「記述スタイル」観点で参照する判定基準。対象はリポジトリルートおよびスキル配下の `AGENTS.md` / `CLAUDE.md`。`SKILL.md` は手順書のため対象外（手順の正確性は「手順の正確性」観点で扱う）。
+検査は `general-purpose` サブエージェントに委譲する。Agent 呼び出しは Claude Code の `allowed-tools` で制御する対象ではなく、このスキル自身はサブエージェントの起動と結果受領しか行わない。Read/Grep/Bash 等はすべてサブエージェント側で使う。
+
+## 記述スタイル判定基準
+
+`SKILL.md` 手順1 の検査観点「記述スタイル」で参照する判定基準。対象は `AGENTS.md` / `CLAUDE.md` の全体と、`SKILL.md` の散文部分（手順セクションを除く）。手順セクションは「手順の正確性」観点で扱う。
 
 ### 書くこと
 
