@@ -120,7 +120,7 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 #### 3-2. 各テーマの出力形式
 
-テーマごとに以下を整理する。テーマを大見出し、トップレベル Issue（または上位目標）を小見出しにし、その配下に関係ツリーを置く。
+テーマごとに以下を整理する。テーマを大見出し、トップレベル Issue または作業グループを小見出しにし、その配下に関係ツリーを置く。
 
 ```
 ## N. テーマ名
@@ -137,18 +137,18 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
   └─ 後続: [Issue/OPEN] タイトル [owner/repo#128](https://github.com/owner/repo/issues/128)（author: @author / next: 優先度判断）
 - 関連: [Issue/OPEN] 親課題に直接関連する別Issue [owner/repo#130](https://github.com/owner/repo/issues/130)（author: @author / next: 優先度判断）
 
-### [上位目標] 親 Issue がない作業単位の短い説明
+### 親 Issue がない作業グループの短い説明
 
 - 実装: [PR/Draft] タイトル [owner/repo#129](https://github.com/owner/repo/issues/129)（author: @author / next: 下書き完成）
   └─ 代替: [PR/OPEN] 同じ目的の別PR [owner/repo#131](https://github.com/owner/repo/issues/131)（author: @author / next: レビュー）
-- 関連: [Issue/OPEN] 上位目標に直接関連するIssue [owner/repo#132](https://github.com/owner/repo/issues/132)（author: @author / next: 優先度判断）
+- 関連: [Issue/OPEN] 作業グループに直接関連するIssue [owner/repo#132](https://github.com/owner/repo/issues/132)（author: @author / next: 優先度判断）
 
 **進捗**: 要約と次のアクション
 ```
 
 - テーマ見出しは `## N. テーマ名` とし、例: `## 1. Google HPA / フィード品質`
 - トップレベル Issue は必ず `### [Issue/OPEN] タイトル [owner/repo#N](...)` の小見出しにする
-- 親 Issue がない作業単位は `### [上位目標] 短い説明` の小見出しにする
+- 親 Issue がない作業単位は、 `### 短い説明` の小見出しにする
 - 小見出し直下にトップレベル Issue の後置メタ情報を 1 行で置く。ツリー内に同じトップレベル Issue を再掲しない
 - 小見出しに直接関連する PR/Issue は第1階層の通常リスト（`-`）に置く。第1階層では `├─` / `└─` を使わない
 - 第1階層の PR/Issue に関連する前提・ブロッカー・後続・代替・関連は第2階層のツリー（`  ├─` / `  └─`）に置く
@@ -165,8 +165,12 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 - `関連`: 親子・前後関係までは断定できないが、同じテーマとして把握すべき Issue/PR
 - 迷った場合は `関連` を使う。細かい作業種別（docs/refactor/test など）をラベル化せず、タイトルと種別プレフィックスで表現する
 - 1 つの根に子要素が多すぎる場合は、重要な 3-6 件に絞り、残りは `└─ その他: N件` として要約する
-- 判定できない項目を無理に親子化しない。根拠が弱い場合は別の `[上位目標]` ツリーに分ける
-- body の `closes` / `fixes` / 明示リンクは最優先で親子関係に使う。次にブランチ名・タイトル類似・コメント文脈で補完する
+- 判定できない項目を無理に親子化しない。根拠が弱い場合は別の作業グループ小見出しに分ける
+- PR 概要欄またはコミットメッセージで GitHub が Issue closing keyword として扱う語は、`close` / `closes` / `closed` / `fix` / `fixes` / `fixed` / `resolve` / `resolves` / `resolved`。大文字やコロン付き（例: `CLOSES: #10`）も有効
+- 上記 keyword は、PR が default branch を対象にしている場合に GitHub に解釈される。同一リポジトリは `KEYWORD #N`、別リポジトリは `KEYWORD owner/repo#N`、複数 Issue は各 Issue ごとに keyword を付ける
+- PR 概要欄の closing keyword は、対象 Issue を閉じる意図が本文上明確で、PR の実装内容・タイトルと対象 Issue の目的が整合している場合だけ親子関係に使う
+- PR 概要欄の明示リンクは、単なる参考リンク・関連資料・例示の可能性があるため、リンク周辺の文脈を確認し、`解決対象` / `前提` / `後続` / `関連` のどれに当たるかを判断してから配置する
+- 判断できない参照は親子関係にせず `関連` として扱う。次にブランチ名・タイトル類似・コメント文脈で補完する
 - クロスリポジトリ関係は同じ作業単位に含め、リポジトリごとに分断しない
 - 1 つのテーマに Open が 10 件を超える場合は、全件列挙よりも相関が分かるツリーを優先し、低優先の独立 Issue は「その他」にまとめる
 - 行頭の種別プレフィックスは `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` のいずれかを必ず付ける（merged PR は `[PR/CLOSED]` として扱う）
