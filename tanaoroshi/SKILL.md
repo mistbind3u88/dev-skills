@@ -1,7 +1,7 @@
 ---
 name: tanaoroshi
 description: 複数GitHubリポジトリのOpen Issue/PRを横断的に棚卸しする。body精査・コメント確認・前提作業の完了状況確認・テーマ別の構造整理・アクション提案を行う。
-allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Agent, Read
+allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh api user:*), Agent, Read
 ---
 
 # Issue/PR 棚卸し
@@ -154,7 +154,7 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 - 第1階層の PR/Issue に関連する前提・ブロッカー・後続・代替・関連は第2階層のツリー（`  ├─` / `  └─`）に置く
 - 小見出し自体に直接関係する前提・ブロッカー・後続は第1階層の通常リストに置いてよい。特定の PR/Issue にだけ紐づくものを第1階層へ混ぜない
 - `直接対応` や `関係ツリー` のような中間見出しは出さない。直接関連か間接関連かはツリーの深さで表す
-- ツリー行は `種別プレフィックス + タイトル + リンク + 後置メタ情報` の順で書く。`@author` / `assignee` / `next` はタイトル直後に置かず、行末の括弧内に回す
+- ツリー行は `関係ラベル + 種別プレフィックス + タイトル + リンク + 後置メタ情報` の順で書く。小見出しなど関係ラベルを付けない行では `種別プレフィックス + タイトル + リンク + 後置メタ情報` の順にする。`@author` / `assignee` / `next` はタイトル直後に置かず、行末の括弧内に回す
 - 後置メタ情報は Open では `（author: @author / assignee: @assignee / next: 実装）`、Closed では `（closed: YYYY-MM-DD）` を基本形にする。assignee がない場合は省略する
 - ツリーの子要素には関係ラベルを必ず付ける。ラベルは増やしすぎず、関係が一目で分かる以下に絞る
 - `実装`: 親 Issue を直接解決する PR、または実装本体の Issue/PR
@@ -173,7 +173,7 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 - 判断できない参照は親子関係にせず `関連` として扱う。次にブランチ名・タイトル類似・コメント文脈で補完する
 - クロスリポジトリ関係は同じ作業単位に含め、リポジトリごとに分断しない
 - 1 つのテーマに Open が 10 件を超える場合は、全件列挙よりも相関が分かるツリーを優先し、低優先の独立 Issue は「その他」にまとめる
-- 行頭の種別プレフィックスは `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` のいずれかを必ず付ける（merged PR は `[PR/CLOSED]` として扱う）
+- 関係ラベルを付けない Issue/PR 行は、行頭に `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` のいずれかを必ず付ける（merged PR は `[PR/CLOSED]` として扱う）。関係ラベルを付けるツリー行では、ラベル直後に種別プレフィックスを置く
 - Open の PR/Issue はタイトル直後に `@author` や `→ <主体>: <アクション>` を置かない。担当・次アクションは後置メタ情報の `author` / `assignee` / `next` にまとめる
 - Closed は主体注釈を付けない（完了済みのため）
 - Open は詳しく（タイトル・残件内容・ブロッカーの有無・`owner/repo#N`）
@@ -200,34 +200,34 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 #### 4-2. アクション提案
 
-以下の 3 カテゴリに分けて提案する。各箇条書きには `[主体]` タグ（`[マージ担当]` / `[レビュワー]` / `[作者]` / `[@assignee]` / `[チーム]` / `[担当未定]` 等）を前置し、その後に `[Issue/…]` または `[PR/…]`、タイトル、リンク、後置メタ情報を続ける。例:
+以下の 3 カテゴリに分けて提案する。各箇条書きには `[主体]` タグ（`[merger]` / `[author]` / `[reviewer]` / `[assignee]` / `[team]` / `[unassigned]` 等）を前置し、その後に `[Issue/…]` または `[PR/…]`、タイトル、リンク、後置メタ情報を続ける。例:
 
 ```
-- [マージ担当] [PR/OPEN] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: マージ可）
-- [レビュワー] [PR/OPEN] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: レビュー）
-- [作者] [PR/Draft] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: 下書き完成）
+- [merger] [PR/OPEN] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: マージ可）
+- [reviewer] [PR/OPEN] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: レビュー）
+- [author] [PR/Draft] タイトル [owner/repo#N](https://github.com/owner/repo/issues/N)（author: @author / next: 下書き完成）
 ```
 
 **すぐ対応できるもの**:
 
-- `[マージ担当]` APPROVED 済みでマージ可能な PR
-- `[クローズ担当]` 前提作業の完了によりクローズ可能な Issue
-- `[クローズ担当]` 上位 Issue に統合してクローズ可能な Issue
+- `[merger]` APPROVED 済みでマージ可能な PR
+- `[closer]` 前提作業の完了によりクローズ可能な Issue
+- `[closer]` 上位 Issue に統合してクローズ可能な Issue
 
 **着手可能になったもの**:
 
-- `[@assignee]`/`[担当未定]` 前提の Closed により実装基盤が整った Issue/PR
-- `[作者]` Draft PR のうち、依存がすべて解決済みのもの
+- `[assignee]`/`[unassigned]` 前提の Closed により実装基盤が整った Issue/PR
+- `[author]` Draft PR のうち、依存がすべて解決済みのもの
 
 **方針合意が必要なもの**:
 
-- `[チーム]` 議論 Issue で方針未決のもの
-- `[チーム]` クロスリポジトリで方針が対立しているもの
-- `[オーナー要判断]` 長期放置（3ヶ月以上）で必要性の再評価が必要なもの
+- `[team]` 議論 Issue で方針未決のもの
+- `[team]` クロスリポジトリで方針が対立しているもの
+- `[owner]` 長期放置（3ヶ月以上）で必要性の再評価が必要なもの
 
 #### 4-3. 依存関係サマリー
 
-アクション提案の前後に、テーマ横断で詰まりやすい依存関係を 5-10 件に絞ってツリー形式で出力する。形式は以下:
+アクション提案の前後に、テーマ横断で詰まりやすい依存関係を 5-10 件に絞ってツリー形式で出力する。根の行は `[ブロッカー]` / `[前提]` / `[重複/統合候補]` などの関係タグを行頭に置き、種別プレフィックスをその直後に続ける。形式は以下:
 
 ```
 **依存関係サマリー**
@@ -250,7 +250,7 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 ## 出力の共通ルール
 
 - **Issue/PR への言及は、タイトル末尾・本文中・括弧内を問わず、すべて `[owner/repo#N](https://github.com/owner/repo/issues/N)` 形式のクリッカブルリンクで記載する。`#N` や `owner/repo#N` だけの素の表記ではターミナル上でリンクにならない。** 範囲指定（`#256〜#258`）や列挙（`#204, #205`）も個別に完全形式で書く
-- **種別プレフィックス** `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` を必ず行頭に付ける（merged PR は `[PR/CLOSED]`）
+- **種別プレフィックス** `[Issue/OPEN]` / `[Issue/CLOSED]` / `[PR/OPEN]` / `[PR/Draft]` / `[PR/CLOSED]` を必ず行頭に付ける（merged PR は `[PR/CLOSED]`）。前置ラベルを使う節では、その節のルールに従う
 - **Open の PR/Issue** はタイトル直後に `@author` や `→ <主体>: <アクション>` を置かない。リンクの後に `（author: ... / assignee: ... / next: ...）` として後置する
 - Closed はリンクの後に `（closed: YYYY-MM-DD）` を付ける
 - リンクはタイトル直後に置く
@@ -262,45 +262,50 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 
 ## ネクストアクション主体の判定ルール
 
-Open の Issue/PR 各行の後置メタ情報に入れる `next` は以下の基準で決める。判定に必要な `isDraft` / `reviewDecision` / `assignees` / ラベルは `summary` の出力に含まれる。必要なら `comments` で直近コメントの向き先を補足する。
+Open の Issue/PR 各行の後置メタ情報に入れる `next` は以下の基準で決める。判定に必要な `isDraft` / `reviewDecision` / `author` / `assignees` / ラベルは `summary` の出力に含まれる。必要なら `comments` で直近コメントの向き先を、`gh pr view` で `reviewRequests` を補足する。
+
+本人視点の分類が必要な場合は、`gh api user --jq .login` またはユーザーから明示された GitHub login を「自分」として扱う。
 
 ### PR
 
-**主判定**（`summary` だけで決定する。上の行から評価し、最初に一致した行を採用する）:
+**主判定**（原則 `summary` で決定し、`reviewRequests` が必要な場合のみ `gh pr view` で補足する。上の行から評価し、最初に一致した行を採用する）:
 
-| 優先 | 条件                                                | 主体: アクション       |
-| ---- | --------------------------------------------------- | ---------------------- |
-| 1    | `isDraft=true`                                      | `作者: 下書き完成`     |
-| 2    | `reviewDecision="APPROVED"`                         | `マージ担当: マージ可` |
-| 3    | `reviewDecision="CHANGES_REQUESTED"`                | `作者: 指摘対応`       |
-| 4    | `reviewDecision="REVIEW_REQUIRED"` または空・未設定 | `レビュワー: レビュー` |
+| 優先 | 条件                                                                                                 | 主体: アクション       |
+| ---- | ---------------------------------------------------------------------------------------------------- | ---------------------- |
+| 1    | `isDraft=true`                                                                                       | `author: 下書き完成`   |
+| 2    | `reviewDecision="APPROVED"`                                                                          | `merger: マージ可`     |
+| 3    | `reviewDecision="CHANGES_REQUESTED"`                                                                 | `author: 指摘対応`     |
+| 4    | (`reviewDecision="REVIEW_REQUIRED"` または空・未設定) かつ `reviewRequests[].login` に自分が含まれる | `reviewer: レビュー`   |
+| 5    | (`reviewDecision="REVIEW_REQUIRED"` または空・未設定) かつ `author.login` が自分                     | `author: レビュー待ち` |
+| 6    | `reviewDecision="REVIEW_REQUIRED"` または空・未設定                                                  | `reviewer: レビュー`   |
 
 **補足判定**（任意）: `comments` を取得済みの場合に限り、以下で主判定の結果を上書きしてよい。判別できない場合は主判定の結果をそのまま使う。
 
-- 直近コメントの投稿者が作者以外 → `作者: 再プッシュ`
-- 直近コメントの投稿者が作者 → `レビュワー: 再レビュー`
+- 直近コメントの投稿者が author 以外 → `author: 再プッシュ`
+- 直近コメントの投稿者が author → `reviewer: 再レビュー`
 
 ### Issue
 
 上の行から評価し、最初に一致した行を採用する（`assignees` が優先）。
 
-| 優先 | 条件                                  | 主体: アクション       |
-| ---- | ------------------------------------- | ---------------------- |
-| 1    | `assignees` あり                      | `@assignee: 実装/調査` |
-| 2    | 議論系ラベル（`discussion` 等）を持つ | `チーム: 方針合意`     |
-| 3    | 上記以外                              | `担当未定: 優先度判断` |
+| 優先 | 条件                                  | 主体: アクション         |
+| ---- | ------------------------------------- | ------------------------ |
+| 1    | `assignees` あり                      | `assignee: 実装/調査`    |
+| 2    | 議論系ラベル（`discussion` 等）を持つ | `team: 方針合意`         |
+| 3    | 上記以外                              | `unassigned: 優先度判断` |
 
 ### アクション提案（Phase 4-2）の主体タグ
 
 アクション提案セクションでは行頭に `[主体]` タグを付ける（上記の「主体」を `[…]` で囲んだ形）。代表例:
 
-- `[マージ担当]` — APPROVED 済み PR のマージを待っている
-- `[レビュワー]` — レビュー・再レビューを待っている
-- `[作者]` — 下書き完成・指摘対応・再プッシュを待っている
-- `[@assignee]` — 指名済みの担当者の実装/調査を待っている
-- `[チーム]` — 方針合意を待っている
-- `[クローズ担当]` — クローズ判断を待っている
-- `[オーナー要判断]` — 長期放置で必要性の再評価が必要
+- `[merger]` — APPROVED 済み PR のマージを待っている
+- `[author]` — レビュー待ち、下書き完成、指摘対応、再プッシュを待っている
+- `[reviewer]` — レビュー・再レビューを待っている。自分がレビュー依頼先の場合もここに分類する
+- `[assignee]` — 指名済みの担当者の実装/調査を待っている
+- `[team]` — 方針合意を待っている
+- `[closer]` — クローズ判断を待っている
+- `[owner]` — 長期放置で必要性の再評価が必要
+- `[unassigned]` — 担当未定で優先度判断を待っている
 
 ## 注意
 
