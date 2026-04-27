@@ -1,6 +1,7 @@
 ---
 name: daily-tagging
 description: リポジトリを pull し、未タグの日付ごとにその日の最後のコミットへ daily-YYYY-MM-DD タグを作成して push する。
+allowed-tools: Bash(tag_daily_last_commits.sh:*)
 ---
 
 # daily-tagging

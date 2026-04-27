@@ -1,7 +1,7 @@
 ---
 name: tanaoroshi
 description: 複数GitHubリポジトリのOpen Issue/PRを横断的に棚卸しする。body精査・コメント確認・前提作業の完了状況確認・テーマ別の構造整理・アクション提案を行う。
-allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh api user:*), Agent, Read
+allowed-tools: Bash(tanaoroshi:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh api user:*), Agent, Read
 ---
 
 # Issue/PR 棚卸し
@@ -38,14 +38,14 @@ allowed-tools: Bash(go run ./skills/tanaoroshi:*), Bash(gh repo view:*), Bash(gh
 
 ### 無視リスト
 
-`skills/tanaoroshi/ignore` にリストされた Issue/PR は `summary`・`refs` の出力から自動的に除外される。棚卸し対象外にしたい Issue/PR がある場合はこのファイルに追記する。形式は `.gitignore` のコメント規則に準拠し、`#` で始まる行はコメントとして扱う。
+`tanaoroshi` コマンドは、同じディレクトリにある `ignore` にリストされた Issue/PR を `summary`・`refs` の出力から自動的に除外する。棚卸し対象外にしたい Issue/PR がある場合はこのファイルに追記する。形式は `.gitignore` のコメント規則に準拠し、`#` で始まる行はコメントとして扱う。
 
 ### Phase 1: データ収集
 
 `collect` で各リポジトリの Open Issue/PR を一括取得し、ファイルに保存する。
 
 ```bash
-go run ./skills/tanaoroshi collect <owner/repo> [owner/repo2 ...] > .results/tanaoroshi.json
+tanaoroshi collect <owner/repo> [owner/repo2 ...] > .results/tanaoroshi.json
 ```
 
 レスポンスはリポジトリごとに `issues` と `prs` を持つ JSON オブジェクト（body 含む全フィールド）。
@@ -53,7 +53,7 @@ go run ./skills/tanaoroshi collect <owner/repo> [owner/repo2 ...] > .results/tan
 データが大きい場合は `summary` で body を除いた一覧を取得する。
 
 ```bash
-go run ./skills/tanaoroshi summary .results/tanaoroshi.json
+tanaoroshi summary .results/tanaoroshi.json
 ```
 
 ### Phase 2: 参照先の解決
@@ -61,7 +61,7 @@ go run ./skills/tanaoroshi summary .results/tanaoroshi.json
 `refs` で collect 結果から body 内の参照を自動抽出する（重複排除済み）。
 
 ```bash
-go run ./skills/tanaoroshi refs .results/tanaoroshi.json
+tanaoroshi refs .results/tanaoroshi.json
 ```
 
 出力は `{source, ref}` のペア配列。検出する参照パターン:
@@ -76,7 +76,7 @@ go run ./skills/tanaoroshi refs .results/tanaoroshi.json
 引数では `#` の代わりに `:` を区切り文字として使用する（シェルでのコメント解釈を回避するため）。
 
 ```bash
-go run ./skills/tanaoroshi resolve \
+tanaoroshi resolve \
   --issues <owner/repo:N> [owner/repo:N ...] \
   --prs <owner/repo:N> [owner/repo:N ...]
 ```
@@ -89,7 +89,7 @@ go run ./skills/tanaoroshi resolve \
 2. 該当する Issue/PR のコメントを `comments` サブコマンドで取得する
 
 ```bash
-go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
+tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 ```
 
 - Issue コメントと PR レビューコメントを時系列でマージして返す
@@ -259,6 +259,7 @@ go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]
 - PR の状態は Closed に統一する（Merged も Closed として扱う）
 - テーマ内では「リポジトリ別」ではなく「作業単位別」に並べる。リポジトリ境界よりも、Issue/PR の相関と次アクションの見通しを優先する
 - 親子関係がない項目を無理にツリー化しない。推測で親子にすると誤解を招くため、根拠が弱い場合は `関連` と明記する
+- リポジトリ内のスクリプトやファイルに言及する場合は、絶対パスではなくリポジトリルートからの相対パスで記載する
 
 ## ネクストアクション主体の判定ルール
 

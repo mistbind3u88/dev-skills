@@ -1,6 +1,7 @@
 ---
 name: backup-branch
 description: 現在の HEAD のバックアップブランチを作成する。rebase や autosquash の前に使う。
+allowed-tools: Bash(backup.sh:*)
 ---
 
 # backup スキル

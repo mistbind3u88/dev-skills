@@ -21,7 +21,7 @@ func main() {
 	switch os.Args[1] {
 	case "collect":
 		if len(os.Args) < 3 {
-			fmt.Fprintln(os.Stderr, "usage: go run ./skills/tanaoroshi collect <owner/repo> [owner/repo2 ...]")
+			fmt.Fprintln(os.Stderr, "usage: tanaoroshi collect <owner/repo> [owner/repo2 ...]")
 			os.Exit(1)
 		}
 		collect(os.Args[2:])
@@ -33,7 +33,7 @@ func main() {
 		resolve(os.Args[2:])
 	case "comments":
 		if len(os.Args) < 3 {
-			fmt.Fprintln(os.Stderr, "usage: go run ./skills/tanaoroshi comments <owner/repo:N> [owner/repo:N ...]")
+			fmt.Fprintln(os.Stderr, "usage: tanaoroshi comments <owner/repo:N> [owner/repo:N ...]")
 			os.Exit(1)
 		}
 		comments(os.Args[2:])
@@ -44,7 +44,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Fprintln(os.Stderr, "usage: go run ./skills/tanaoroshi <command> [args...]")
+	fmt.Fprintln(os.Stderr, "usage: tanaoroshi <command> [args...]")
 	fmt.Fprintln(os.Stderr, "")
 	fmt.Fprintln(os.Stderr, "  collect <owner/repo> [...]                    Fetch open issues and PRs (JSON)")
 	fmt.Fprintln(os.Stderr, "  summary                                      Compact summary without body (stdin)")
@@ -169,6 +169,9 @@ func refs(args []string) {
 
 				extracted := extractRefs(body, repo)
 				for _, ref := range extracted {
+					if isIgnoredRef(ignore, ref) {
+						continue
+					}
 					if !seen[ref] {
 						seen[ref] = true
 						entries = append(entries, refEntry{Source: source, Ref: ref})
@@ -245,14 +248,14 @@ func resolve(args []string) {
 			case "prs":
 				prRefs = append(prRefs, arg)
 			default:
-				fmt.Fprintln(os.Stderr, "usage: go run ./skills/tanaoroshi resolve --issues <owner/repo:N> ... --prs <owner/repo:N> ...")
+				fmt.Fprintln(os.Stderr, "usage: tanaoroshi resolve --issues <owner/repo:N> ... --prs <owner/repo:N> ...")
 				os.Exit(1)
 			}
 		}
 	}
 
 	if len(issueRefs) == 0 && len(prRefs) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: go run ./skills/tanaoroshi resolve --issues <owner/repo:N> ... --prs <owner/repo:N> ...")
+		fmt.Fprintln(os.Stderr, "usage: tanaoroshi resolve --issues <owner/repo:N> ... --prs <owner/repo:N> ...")
 		os.Exit(1)
 	}
 
@@ -454,10 +457,14 @@ func extractComment(c map[string]any, typ string) struct {
 	}
 }
 
-const ignoreFile = "skills/tanaoroshi/ignore"
+const ignoreFile = "tanaoroshi/ignore"
 
 func loadIgnoreList() map[string]bool {
-	b, err := os.ReadFile(ignoreFile)
+	path := os.Getenv("TANAOROSHI_IGNORE_FILE")
+	if path == "" {
+		path = ignoreFile
+	}
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return map[string]bool{}
 	}
@@ -474,6 +481,10 @@ func loadIgnoreList() map[string]bool {
 
 func isIgnored(ignore map[string]bool, repo, number string) bool {
 	return ignore[fmt.Sprintf("%s#%s", repo, number)]
+}
+
+func isIgnoredRef(ignore map[string]bool, ref string) bool {
+	return ignore[ref]
 }
 
 func filterIgnored(items []any, ignore map[string]bool, repo string) []any {

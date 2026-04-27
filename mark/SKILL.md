@@ -1,6 +1,7 @@
 ---
 name: mark
 description: チェック通過を示すローカル軽量タグを現在の HEAD に設置・確認・削除する。
+allowed-tools: Bash(mark.sh:*)
 ---
 
 # mark スキル
