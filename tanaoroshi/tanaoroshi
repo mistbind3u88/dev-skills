@@ -13,5 +13,4 @@ done
 
 script_dir="$(CDPATH= cd -- "$(dirname -- "$source_path")" && pwd)"
 
-export TANAOROSHI_IGNORE_FILE="${TANAOROSHI_IGNORE_FILE:-$script_dir/ignore}"
 GO111MODULE=off go run "$script_dir/main.go" "$@"

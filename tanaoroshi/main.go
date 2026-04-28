@@ -6,7 +6,9 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 )
@@ -47,8 +49,8 @@ func printUsage() {
 	fmt.Fprintln(os.Stderr, "usage: tanaoroshi <command> [args...]")
 	fmt.Fprintln(os.Stderr, "")
 	fmt.Fprintln(os.Stderr, "  collect <owner/repo> [...]                    Fetch open issues and PRs (JSON)")
-	fmt.Fprintln(os.Stderr, "  summary                                      Compact summary without body (stdin)")
-	fmt.Fprintln(os.Stderr, "  refs                                         Extract cross-references from body (stdin)")
+	fmt.Fprintln(os.Stderr, "  summary [--ignore-file path] [file]          Compact summary without body")
+	fmt.Fprintln(os.Stderr, "  refs [--ignore-file path] [file]             Extract cross-references from body")
 	fmt.Fprintln(os.Stderr, "  resolve --issues <owner/repo:N> --prs <ref>  Check status of referenced items")
 	fmt.Fprintln(os.Stderr, "  comments <owner/repo:N> [...]               Fetch issue/review comments")
 }
@@ -82,8 +84,9 @@ func collect(repos []string) {
 
 // summary reads collect JSON and outputs a compact summary without body.
 func summary(args []string) {
+	opts, args := parseCommonOptions(args)
 	data := readInput(args)
-	ignore := loadIgnoreList()
+	ignore := loadIgnoreList(opts.IgnoreFiles)
 
 	ignored := 0
 	result := map[string]any{}
@@ -103,7 +106,7 @@ func summary(args []string) {
 		}
 	}
 	if ignored > 0 {
-		fmt.Fprintf(os.Stderr, "[info] ignored %d item(s) from %s\n", ignored, ignoreFile)
+		fmt.Fprintf(os.Stderr, "[info] ignored %d item(s) from %s\n", ignored, strings.Join(ignoreFilePaths(opts.IgnoreFiles), ":"))
 	}
 
 	writeJSON(result)
@@ -136,8 +139,9 @@ var (
 
 // refs reads collect JSON and extracts unique cross-references.
 func refs(args []string) {
+	opts, args := parseCommonOptions(args)
 	data := readInput(args)
-	ignore := loadIgnoreList()
+	ignore := loadIgnoreList(opts.IgnoreFiles)
 
 	seen := map[string]bool{}
 	type refEntry struct {
@@ -457,26 +461,91 @@ func extractComment(c map[string]any, typ string) struct {
 	}
 }
 
-const ignoreFile = "tanaoroshi/ignore"
+const ignoreFile = "ignore"
 
-func loadIgnoreList() map[string]bool {
-	path := os.Getenv("TANAOROSHI_IGNORE_FILE")
-	if path == "" {
-		path = ignoreFile
+type commonOptions struct {
+	IgnoreFiles []ignoreFileSource
+}
+
+type ignoreFileSource struct {
+	Path     string
+	Required bool
+}
+
+func parseCommonOptions(args []string) (commonOptions, []string) {
+	opts := commonOptions{}
+	if path := defaultIgnoreFilePath(); path != "" {
+		opts.IgnoreFiles = append(opts.IgnoreFiles, ignoreFileSource{Path: path})
 	}
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return map[string]bool{}
+	rest := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--ignore-file":
+			if i+1 >= len(args) {
+				fmt.Fprintln(os.Stderr, "[error] --ignore-file requires a path")
+				os.Exit(1)
+			}
+			if !hasIgnoreFile(opts.IgnoreFiles, args[i+1]) {
+				opts.IgnoreFiles = append(opts.IgnoreFiles, ignoreFileSource{Path: args[i+1], Required: true})
+			}
+			i++
+		default:
+			rest = append(rest, args[i])
+		}
 	}
+	return opts, rest
+}
+
+func defaultIgnoreFilePath() string {
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		return ignoreFile
+	}
+	return filepath.Join(filepath.Dir(file), ignoreFile)
+}
+
+func loadIgnoreList(files []ignoreFileSource) map[string]bool {
 	m := map[string]bool{}
-	for line := range strings.SplitSeq(string(b), "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
+	for _, file := range files {
+		if file.Path == "" {
 			continue
 		}
-		m[line] = true
+		b, err := os.ReadFile(file.Path)
+		if err != nil {
+			if file.Required {
+				fmt.Fprintf(os.Stderr, "[error] failed to read ignore file %s: %v\n", file.Path, err)
+				os.Exit(1)
+			}
+			continue
+		}
+		for line := range strings.SplitSeq(string(b), "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			m[line] = true
+		}
 	}
 	return m
+}
+
+func ignoreFilePaths(files []ignoreFileSource) []string {
+	paths := make([]string, 0, len(files))
+	for _, file := range files {
+		if file.Path != "" {
+			paths = append(paths, file.Path)
+		}
+	}
+	return paths
+}
+
+func hasIgnoreFile(files []ignoreFileSource, path string) bool {
+	for _, file := range files {
+		if file.Path == path {
+			return true
+		}
+	}
+	return false
 }
 
 func isIgnored(ignore map[string]bool, repo, number string) bool {

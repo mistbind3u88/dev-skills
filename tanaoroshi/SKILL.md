@@ -38,7 +38,14 @@ allowed-tools: Bash(tanaoroshi:*), Bash(gh repo view:*), Bash(gh pr view:*), Bas
 
 ### 無視リスト
 
-`tanaoroshi` コマンドは、同じディレクトリにある `ignore` にリストされた Issue/PR を `summary`・`refs` の出力から自動的に除外する。棚卸し対象外にしたい Issue/PR がある場合はこのファイルに追記する。形式は `.gitignore` のコメント規則に準拠し、`#` で始まる行はコメントとして扱う。
+`tanaoroshi` コマンドは、デフォルトでスキル側の `ignore` にリストされた Issue/PR を `summary`・`refs` の出力から除外する。実行リポジトリ側の ignore を追加したい場合は、`--ignore-file` で呼び出し元の cwd から読めるファイルを明示する。形式は `.gitignore` のコメント規則に準拠し、`#` で始まる行はコメントとして扱う。`--ignore-file` で指定したファイルが存在しない場合はエラーにする。
+
+特定リポジトリの ignore を注入する例:
+
+```bash
+tanaoroshi summary --ignore-file .tanaoroshi-ignore .results/tanaoroshi.json
+tanaoroshi refs --ignore-file .tanaoroshi-ignore .results/tanaoroshi.json
+```
 
 ### Phase 1: データ収集
 
